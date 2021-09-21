@@ -9,7 +9,7 @@ from typing import List, Dict
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 
-from tools.prepare_compiler import load_optimizer, load_loss, load_list_metric
+from utils.prepare_compiler import load_optimizer, load_loss, load_list_metric
 
 
 def compile_model(model: tf.keras.models.Model, optimizer_info: Dict, loss_info: Dict,
@@ -26,9 +26,9 @@ def load_checkpoint(model, weights_cp_path=None, model_cp_dir=None):
         print("Load checkpoint from ", model_cp_dir)
     elif weights_cp_path != None:
         model.load_weights(weights_cp_path)
-        print("Load checkpoint from ", weights_cp_path)
+        print("Load checkpoint from ", weights_cp_path, " !!!")
     else:
-        print("Does have any checkpoint to load")
+        print("Does have any checkpoint to load !!!")
     return model
 
 

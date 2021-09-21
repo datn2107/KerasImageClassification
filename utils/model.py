@@ -12,7 +12,7 @@ from typing import Tuple, List
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten, Dense, Dropout
 
-from tools.config import ConfigReader
+from utils.config import ConfigReader
 
 module_name = "tensorflow.keras.applications.{model_name}"
 general_model_name = {"Xception": "xception",
@@ -31,7 +31,7 @@ general_model_name = {"Xception": "xception",
 
 class KerasModel:
     def __init__(self, model_name: str, num_class: int, backbone_weights: str = "imagenet",
-                 trainable_backbone: bool = True, last_pooling_layer: str = "avg", num_dense: int = 3,
+                 trainable_backbone: bool = True, last_pooling_layer: str = "avg", num_dense: int = 0,
                  unit_first_dense_layer: int = 4096, activation_dense: str = 'relu',
                  units_remain_rate: float = 0.5, activation_last_dense: str = 'sigmoid',
                  dropout_layer: bool = True, dropout_rate: float = 0.3):
@@ -74,19 +74,19 @@ class KerasModel:
         self.num_dense = min(self.num_dense, max_dense)
 
         fc_layer = []
-        if (self.num_dense > 1):
+        if (self.num_dense > 0):
             fc_layer.append(Dense(units=self.unit_first_dense_layer, activation=self.activation_dense)(backbone))
             if (self.dropout_layer):
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
-        for id in range(2, self.num_dense):
+        for id in range(1, self.num_dense):
             fc_layer.append(
                 Dense(units=fc_layer[-1].shape[1] * self.units_remain_rate, activation=self.activation_dense)(
                     fc_layer[-1]))
             if (self.dropout_layer):
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
-        if (self.num_dense == 1):
+        if (self.num_dense == 0):
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(backbone)
         else:
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layer[-1])
@@ -109,9 +109,10 @@ class KerasModel:
 
 
 if __name__ == '__main__':
+    package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Config Path')
-    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../setting.cfg"))
+    parser.set_defaults(config=os.path.join(package_dir, "config/setting.cfg"))
 
     config_reader = ConfigReader(parser.parse_args().config)
     model_config = config_reader.get_model_config()

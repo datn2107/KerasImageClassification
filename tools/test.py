@@ -4,17 +4,17 @@ import os
 import pandas as pd
 import tensorflow as tf
 
-from keras_classification.utils.config import ConfigReader
-from keras_classification.utils.data import split_and_load_dataset
-from keras_classification.utils.evaluation import evaluate, save_result, plot_log_csv
-from keras_classification.utils.model import KerasModel
-from keras_classification.utils.prepare_training import compile_model, load_checkpoint, load_callbacks
+from utils.config import ConfigReader
+from utils.data import split_and_load_dataset
+from utils.evaluation import evaluate, save_result, plot_log_csv
+from utils.model import KerasModel
+from utils.prepare_training import compile_model, load_checkpoint, load_callbacks
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Checkpoint Direction')
-    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../setting.cfg"))
+    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/setting.cfg"))
 
     config_reader = ConfigReader(parser.parse_args().config)
     path_infor = config_reader.get_path_config()
@@ -33,7 +33,8 @@ if __name__ == '__main__':
                                                 height=height, width=width)
 
     model = load_checkpoint(model, **path_infor)
-    result = model.evaluate(test_dataset)
+    result = evaluate(model, test_dataset)
     print(result)
 
-    save_result(result=result, saving_dir=saving_dir, model_name=model_infor['model_name'])
+    plot_log_csv(os.path.join(saving_dir, "log.csv"))
+    save_result(result=result, saving_dir=saving_dir, model_name=model_info['model_name'])

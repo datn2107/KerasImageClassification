@@ -3,16 +3,16 @@ import os
 
 import pandas as pd
 
-from keras_classification.utils.config import ConfigReader
-from keras_classification.utils.data import split_and_load_dataset
-from keras_classification.utils.evaluation import evaluate, save_result, plot_log_csv
-from keras_classification.utils.model import KerasModel
-from keras_classification.utils.prepare_training import compile_model, load_checkpoint, load_callbacks
+from utils.config import ConfigReader
+from utils.data import split_and_load_dataset
+from utils.evaluation import evaluate, save_result, plot_log_csv
+from utils.model import KerasModel
+from utils.prepare_training import compile_model, load_checkpoint, load_callbacks
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Checkpoint Direction')
-    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../setting.cfg"))
+    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/setting.cfg"))
 
     config_reader = ConfigReader(parser.parse_args().config)
     path_info = config_reader.get_path_config()
@@ -40,7 +40,10 @@ if __name__ == '__main__':
     # Compile Model
     model = compile_model(model, optimizer_info=optimizer_info, loss_info=loss_info, list_metric_info=list_metric_info)
     model = load_checkpoint(model, model_cp_dir=model_cp_dir, weights_cp_path=weights_cp_path)
-    loss_lastest_checkpoint = evaluate(model, val_dataset, model_cp_dir=model_cp_dir, weights_cp_path=weights_cp_path)
+    if model_cp_dir is not None or weights_cp_path is not None:
+        loss_lastest_checkpoint = evaluate(model, val_dataset)
+    else:
+        loss_lastest_checkpoint = None
 
     # Training
     history = model.fit(

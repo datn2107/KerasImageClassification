@@ -8,7 +8,7 @@ import pandas as pd
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from tools.prepare_training import load_checkpoint
+from utils.prepare_training import load_checkpoint
 
 
 def plot_log_csv(log_path):
@@ -35,9 +35,9 @@ def save_result(result, saving_dir, model_name):
 
 def evaluate(model, test_dataset, weights_cp_path=None, model_cp_dir=None):
     if model_cp_dir == None and weights_cp_path == None:
-        print("There are no checkpoint to evalue your model !!!")
-        return
+        print("There are no additional checkpoint !!!")
+    else:
+        model = load_checkpoint(model, weights_cp_path=weights_cp_path, model_cp_dir=model_cp_dir)
 
-    model = load_checkpoint(model, weights_cp_path=weights_cp_path, model_cp_dir=model_cp_dir)
     result = model.evaluate(test_dataset, return_dict=True)
     print(result)

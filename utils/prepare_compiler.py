@@ -9,7 +9,7 @@ from typing import List, Dict
 
 import tensorflow as tf
 
-from tools.config import ConfigReader
+from utils.config import ConfigReader
 
 
 def load_optimizer(optimizer: str = "Adam", **parameters) -> tf.keras.optimizers:
@@ -57,7 +57,7 @@ def load_list_metric(list_metric_info: List[Dict]) -> List[tf.keras.metrics.Metr
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Checkpoint Direction')
-    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../setting.cfg"))
+    parser.set_defaults(config=os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config/setting.cfg"))
 
     config_reader = ConfigReader(parser.parse_args().config)
     optimizer_info = config_reader.get_optimizer_config()
