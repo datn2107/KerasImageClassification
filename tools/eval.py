@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser.set_defaults(training_arg_config=os.path.join(package_dir, "configs", "training.cfg"))
 
     path_info = get_path_from_config(parser.parse_args().path_config)
-    model_info = get_model_from_config(parser.parse_args().mode_config)
+    model_info = get_model_from_config(parser.parse_args().model_config)
     data_info = get_data_from_config(parser.parse_args().training_arg_config)
     optimizer_info = get_optimizer_from_config(parser.parse_args().training_arg_config)
     loss_info = get_loss_from_config(parser.parse_args().training_arg_config)
