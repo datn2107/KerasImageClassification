@@ -1,9 +1,5 @@
 import os
-import sys
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
+import warnings
 from typing import List, Dict
 
 import tensorflow as tf
@@ -26,9 +22,9 @@ def load_checkpoint(model, weights_cp_path=None, model_cp_dir=None):
         print("Load checkpoint from ", model_cp_dir)
     elif weights_cp_path != None:
         model.load_weights(weights_cp_path)
-        print("Load checkpoint from ", weights_cp_path, " !!!")
+        print("Load checkpoint from ", weights_cp_path, ".")
     else:
-        print("Does have any checkpoint to load !!!")
+        warnings.warn("Does have any checkpoint to load.")
     return model
 
 
