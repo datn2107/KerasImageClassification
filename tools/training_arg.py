@@ -8,7 +8,7 @@ if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Config Path')
-    parser.set_defaults(config=os.path.join(package_dir, "config/training.cfg"))
+    parser.set_defaults(config=os.path.join(package_dir, r"configs\training.cfg"))
 
     optimizer_info = get_optimizer_from_config(parser.parse_args().config)
     loss_info = get_loss_from_config(parser.parse_args().config)
