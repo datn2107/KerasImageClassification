@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import warnings
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -35,7 +36,7 @@ def save_result(result, saving_dir, model_name):
 
 def evaluate(model, test_dataset, weights_cp_path=None, model_cp_dir=None):
     if model_cp_dir == None and weights_cp_path == None:
-        print("There are no additional checkpoint !!!")
+        warnings.warn("Warning: There are no additional checkpoint !!!")
     else:
         model = load_checkpoint(model, weights_cp_path=weights_cp_path, model_cp_dir=model_cp_dir)
 

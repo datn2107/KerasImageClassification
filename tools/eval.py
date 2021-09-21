@@ -3,10 +3,10 @@ import os
 
 import pandas as pd
 from utils.config import *
-from utils.data import split_and_load_dataset
-from utils.evaluation import evaluate, save_result, plot_log_csv
+from utils.data import DataReader
+from utils.evaluation import evaluate, save_result
 from utils.model import KerasModel
-from utils.prepare_training import compile_model, load_checkpoint, load_callbacks
+from utils.prepare_training import compile_model
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -28,38 +28,23 @@ if __name__ == '__main__':
     saving_dir = path_info['saving_dir']
     model_cp_dir = path_info['model_cp_dir']
     weights_cp_path = path_info['weights_cp_path']
-    dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
+    test_dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
 
     # Load model and data
-    model_generator = KerasModel(**model_info, num_class=len(dataframe.columns))
+    model_generator = KerasModel(**model_info, num_class=len(test_dataframe.columns))
     model = model_generator.create_model_keras()
 
     # input_shape of model [batch, height, width, channel]
     input_shape = model.input_shape
-    train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, path_info['image_path'],
-                                                                      batch_size=int(data_info['batch_size']),
-                                                                      height=input_shape[1], width=input_shape[2])
+    test_dataset = DataReader(test_dataframe, path_info['image_path'],
+                              height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Compile Model
     model = compile_model(model, optimizer_info=optimizer_info, loss_info=loss_info, list_metric_info=list_metric_info)
-    model = load_checkpoint(model, model_cp_dir=model_cp_dir, weights_cp_path=weights_cp_path)
+
     if model_cp_dir is not None or weights_cp_path is not None:
-        loss_lastest_checkpoint = evaluate(model, val_dataset)
-    else:
-        loss_lastest_checkpoint = None
-
-    # Training
-    history = model.fit(
-        train_dataset,
-        epochs=data_info['epoch'],
-        validation_data=val_dataset,
-        initial_epoch=data_info['last_epoch'],
-        callbacks=load_callbacks(saving_dir, loss_lastest_checkpoint=loss_lastest_checkpoint)
-    )
-
-    best_model_path = os.path.join(saving_dir, "save_model", "best")
-    result = evaluate(model, test_dataset, model_cp_dir=best_model_path)
+        raise ValueError("There are no checkpoint to evaluate.")
+    result = evaluate(model, test_dataset, model_cp_dir=model_cp_dir, weights_cp_path=weights_cp_path)
     print(result)
 
-    plot_log_csv(os.path.join(saving_dir, "log.csv"))
     save_result(result=result, saving_dir=saving_dir, model_name=model_info['model_name'])

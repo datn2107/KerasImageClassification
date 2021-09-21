@@ -1,18 +1,9 @@
-import os
-import sys
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-import argparse
 import importlib
 from math import floor, ceil, log2
 from typing import Tuple, List
 
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten, Dense, Dropout
-
-from utils.config import ConfigReader
 
 module_name = "tensorflow.keras.applications.{model_name}"
 general_model_name = {"Xception": "xception",
@@ -74,19 +65,19 @@ class KerasModel:
         self.num_dense = min(self.num_dense, max_dense)
 
         fc_layer = []
-        if (self.num_dense > 0):
+        if (self.num_dense > 1):
             fc_layer.append(Dense(units=self.unit_first_dense_layer, activation=self.activation_dense)(backbone))
             if (self.dropout_layer):
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
-        for id in range(1, self.num_dense):
+        for id in range(2, self.num_dense):
             fc_layer.append(
                 Dense(units=fc_layer[-1].shape[1] * self.units_remain_rate, activation=self.activation_dense)(
                     fc_layer[-1]))
             if (self.dropout_layer):
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
-        if (self.num_dense == 0):
+        if (self.num_dense == 1):
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(backbone)
         else:
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layer[-1])
@@ -106,18 +97,3 @@ class KerasModel:
             output = self._create_fully_connected_layer(backbone=base_model)
 
         return tf.keras.Model(input, output)
-
-
-if __name__ == '__main__':
-    package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, help='Config Path')
-    parser.set_defaults(config=os.path.join(package_dir, "config/setting.cfg"))
-
-    config_reader = ConfigReader(parser.parse_args().config)
-    model_config = config_reader.get_model_config()
-
-    model_generator = KerasModel(**model_config, num_class=10)
-
-    model = model_generator.create_model_keras()
-    print(model.summary())
