@@ -2,7 +2,8 @@ import argparse
 import os
 
 import pandas as pd
-from utils.config import *
+
+from utils.config import ConfigReader
 from utils.data import DataReader
 from utils.evaluation import evaluate, save_result
 from utils.model import KerasModel
@@ -11,19 +12,13 @@ from utils.prepare_training import compile_model
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser()
-    parser.add_argument('--path_config', type=str, help='Path to config contain reference')
-    parser.set_defaults(path_config=os.path.join(package_dir, "configs", "path.cfg"))
-    parser.add_argument('--model_config', type=str, help='Path of config contain model')
-    parser.set_defaults(model_config=os.path.join(package_dir, "configs", "model.cfg"))
-    parser.add_argument('--training_arg_config', type=str, help='Path of config contain training arguments')
-    parser.set_defaults(training_arg_config=os.path.join(package_dir, "configs", "training.cfg"))
+    parser.add_argument('--config', type=str, help='Config path')
+    parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
 
-    path_info = get_path_from_config(parser.parse_args().path_config)
-    model_info = get_model_from_config(parser.parse_args().model_config)
-    data_info = get_data_from_config(parser.parse_args().training_arg_config)
-    optimizer_info = get_optimizer_from_config(parser.parse_args().training_arg_config)
-    loss_info = get_loss_from_config(parser.parse_args().training_arg_config)
-    list_metric_info = get_list_metric_from_config(parser.parse_args().training_arg_config)
+    config_reader = ConfigReader(parser.parse_args().config)
+    path_info = config_reader.get_path()
+    model_info = config_reader.get_model()
+    data_info = config_reader.get_data()
 
     saving_dir = path_info['saving_dir']
     model_cp_dir = path_info['model_cp_dir']
@@ -40,9 +35,10 @@ if __name__ == '__main__':
                               height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Compile Model
-    model = compile_model(model, optimizer_info=optimizer_info, loss_info=loss_info, list_metric_info=list_metric_info)
+    model = compile_model(model, optimizer_info=config_reader.get_optimizer(), loss_info=config_reader.get_loss(),
+                          list_metric_info=config_reader.get_list_metric())
 
-    if model_cp_dir is not None or weights_cp_path is not None:
+    if model_cp_dir is None and weights_cp_path is None:
         raise ValueError("There are no checkpoint to evaluate.")
     result = evaluate(model, test_dataset, model_cp_dir=model_cp_dir, weights_cp_path=weights_cp_path)
     print(result)

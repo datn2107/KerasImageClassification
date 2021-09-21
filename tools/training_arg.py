@@ -1,18 +1,19 @@
 import os
 import argparse
 
-from utils.config import get_optimizer_from_config, get_loss_from_config, get_list_metric_from_config
+from utils.config import ConfigReader
 from utils.prepare_compiler import load_optimizer, load_loss, load_list_metric
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, help='Config Path')
-    parser.set_defaults(config=os.path.join(package_dir, "configs", "training.cfg"))
+    parser.add_argument('--config', type=str, help='Config path')
+    parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
 
-    optimizer_info = get_optimizer_from_config(parser.parse_args().config)
-    loss_info = get_loss_from_config(parser.parse_args().config)
-    list_metric_info = get_list_metric_from_config(parser.parse_args().config)
+    config_reader = ConfigReader(parser.parse_args().config)
+    optimizer_info = config_reader.get_optimizer()
+    loss_info = config_reader.get_loss()
+    list_metric_info = config_reader.get_list_metric()
 
     print("\nOptimizer")
     print(load_optimizer(**optimizer_info).get_config())
