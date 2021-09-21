@@ -48,7 +48,7 @@ def get_model_from_config(config_path: str) -> Dict:
     if 'model_name' not in model_config:
         model_config['model_name'] = 'ResNet50V2'
     # Get config of fully connected layer
-    fully_connected_layer_config = _get_section('Fully Connected Layer')
+    fully_connected_layer_config = _get_section(_read_config(config_path), 'Fully Connected Layer')
     if fully_connected_layer_config['num_dense'] <= 0:
         print("Number dense layer is less than 1. It will set to the default num_dense = 3")
         fully_connected_layer_config['num_dense'] = 3
