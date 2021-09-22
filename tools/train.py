@@ -4,11 +4,11 @@ import os
 import pandas as pd
 
 from utils.callback import load_callbacks
+from utils.compiler import compile_model, load_checkpoint
 from utils.config import ConfigReader
 from utils.data import split_and_load_dataset
 from utils.evaluation import evaluate, save_result, plot_log_csv
 from utils.model import KerasModel
-from utils.compiler import compile_model, load_checkpoint
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # input_shape of model [batch, height, width, channel]
     input_shape = model.input_shape
-    train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, path_info['image_path'],
+    train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, path_info['image_dir'],
                                                                       batch_size=int(data_info['batch_size']),
                                                                       height=input_shape[1], width=input_shape[2])
 

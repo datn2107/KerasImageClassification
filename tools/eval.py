@@ -3,11 +3,11 @@ import os
 
 import pandas as pd
 
+from utils.compiler import compile_model
 from utils.config import ConfigReader
 from utils.data import DataReader
 from utils.evaluation import evaluate, save_result
 from utils.model import KerasModel
-from utils.compiler import compile_model
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -31,7 +31,7 @@ if __name__ == '__main__':
 
     # input_shape of model [batch, height, width, channel]
     input_shape = model.input_shape
-    test_dataset = DataReader(test_dataframe, path_info['image_path'],
+    test_dataset = DataReader(test_dataframe, path_info['image_dir'],
                               height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Compile Model

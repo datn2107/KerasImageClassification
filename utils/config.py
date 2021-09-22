@@ -1,5 +1,5 @@
-import warnings
 import configparser
+import warnings
 from typing import List, Dict, Any
 
 
@@ -31,6 +31,12 @@ class ConfigReader:
 
     def get_path(self) -> Dict:
         path_config = self.get_section('Path')
+        if path_config.get('image_dir', None) == None:
+            raise ValueError("Missing directory path of image.")
+        if path_config.get('metadata_path', None) == None:
+            raise ValueError("Missing metadata path.")
+        if path_config.get('saving_dir', None) == None:
+            raise ValueError("Missing saving directory path to save model.")
         return path_config
 
     def get_data(self) -> Dict:
