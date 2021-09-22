@@ -9,7 +9,7 @@ import pandas as pd
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
-from utils.prepare_training import load_checkpoint
+from utils.compiler import load_checkpoint
 
 
 def plot_log_csv(log_path):

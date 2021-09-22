@@ -7,7 +7,7 @@ from utils.config import ConfigReader
 from utils.data import DataReader
 from utils.evaluation import evaluate, save_result
 from utils.model import KerasModel
-from utils.prepare_training import compile_model
+from utils.compiler import compile_model
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

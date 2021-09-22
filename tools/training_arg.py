@@ -2,7 +2,7 @@ import os
 import argparse
 
 from utils.config import ConfigReader
-from utils.prepare_compiler import load_optimizer, load_loss, load_list_metric
+from utils.loss_and_metric import load_optimizer, load_loss, load_list_metric
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

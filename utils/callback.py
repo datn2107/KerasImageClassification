@@ -1,34 +1,25 @@
+import configparser
 import os
-import warnings
-from typing import List, Dict
+import shutil
 
 import tensorflow as tf
 from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 
-from utils.prepare_compiler import load_optimizer, load_loss, load_list_metric
+
+class SavingConfigCallback(tf.keras.callbacks.Callback):
+    def __init__(self, saving_dir):
+        super().__init__()
+        self.config = configparser.ConfigParser()
+        self.config.read(os.path.join(saving_dir, "setting.cfg"))
+        self.saving_dir = saving_dir
+
+    def on_epoch_end(self, epoch, logs=None):
+        self.config.set('Data', 'last_epoch', str(epoch))
+        with open(os.path.join(self.saving_dir, "setting.cfg"), "w") as configfile:
+            self.config.write(configfile)
 
 
-def compile_model(model: tf.keras.models.Model, optimizer_info: Dict, loss_info: Dict,
-                  list_metric_info: List[Dict]) -> tf.keras.models.Model:
-    model.compile(optimizer=load_optimizer(**optimizer_info),
-                  loss=load_loss(**loss_info),
-                  metrics=load_list_metric(list_metric_info))
-    return model
-
-
-def load_checkpoint(model, weights_cp_path=None, model_cp_dir=None):
-    if model_cp_dir != None:
-        model = tf.keras.models.load_model(model_cp_dir)
-        print("Load checkpoint from ", model_cp_dir)
-    elif weights_cp_path != None:
-        model.load_weights(weights_cp_path)
-        print("Load checkpoint from ", weights_cp_path, ".")
-    else:
-        warnings.warn("Does have any checkpoint to load.")
-    return model
-
-
-def load_callbacks(saving_dir, loss_lastest_checkpoint=None):
+def load_callbacks(config_path, saving_dir, loss_lastest_checkpoint=None):
     file_name = "epoch_{epoch:04d}-val_loss_{val_loss:.2f}"
 
     save_model_dir = os.path.join(saving_dir, "save_model")
@@ -53,4 +44,7 @@ def load_callbacks(saving_dir, loss_lastest_checkpoint=None):
                               profile_batch='500,520')
     csv_logger = CSVLogger(os.path.join(saving_dir, "log.csv"), append=True)
 
-    return [save_model, save_best_model, save_model_h5, save_best_model_h5, tb_callback, csv_logger]
+    shutil.copyfile(config_path, os.path.join(saving_dir, "setting.cfg"))
+    save_config = SavingConfigCallback(saving_dir)
+
+    return [save_model, save_best_model, save_model_h5, save_best_model_h5, tb_callback, csv_logger, save_config]

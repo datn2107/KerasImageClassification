@@ -2,11 +2,13 @@ import argparse
 import os
 
 import pandas as pd
+
+from utils.callback import load_callbacks
 from utils.config import ConfigReader
 from utils.data import split_and_load_dataset
 from utils.evaluation import evaluate, save_result, plot_log_csv
 from utils.model import KerasModel
-from utils.prepare_training import compile_model, load_checkpoint, load_callbacks
+from utils.compiler import compile_model, load_checkpoint
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -49,7 +51,8 @@ if __name__ == '__main__':
         epochs=data_info['epoch'],
         validation_data=val_dataset,
         initial_epoch=data_info['last_epoch'],
-        callbacks=load_callbacks(saving_dir, loss_lastest_checkpoint=loss_lastest_checkpoint)
+        callbacks=load_callbacks(parser.parse_args().config, saving_dir,
+                                 loss_lastest_checkpoint=loss_lastest_checkpoint)
     )
 
     best_model_path = os.path.join(saving_dir, "save_model", "best")
