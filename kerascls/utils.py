@@ -6,9 +6,9 @@ import pandas as pd
 import tensorflow as tf
 
 from kerascls.checkpoint import load_model, load_weight
+from kerascls.config import ConfigReader
 from kerascls.loss_and_metric import load_optimizer, load_loss, load_list_metric
 from kerascls.model import KerasModel
-from kerascls.config import ConfigReader
 
 
 def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: int = None) -> tf.keras.models.Model:
@@ -28,6 +28,8 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
     model.compile(optimizer=load_optimizer(**config_reader.get_optimizer()),
                   loss=load_loss(**config_reader.get_loss()),
                   metrics=load_list_metric(config_reader.get_list_metric()))
+
+    return model
 
 
 def plot_log_csv(log_path):
