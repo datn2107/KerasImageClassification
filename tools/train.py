@@ -41,7 +41,7 @@ if __name__ == '__main__':
                                                                       height=input_shape[1], width=input_shape[2])
 
     if any(val is not None for key, val in checkpoints.items() if key != "last_epoch"):
-        loss_latest_checkpoint = model.evaluate(val_dataset, return_dict=True)['val_loss']
+        loss_latest_checkpoint = model.evaluate(val_dataset, return_dict=True)['loss']
     else:
         loss_latest_checkpoint = None
 
