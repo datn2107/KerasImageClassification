@@ -3,11 +3,11 @@ import os
 
 import pandas as pd
 
-from keras.checkpoint import load_checkpoint
-from keras.config import ConfigReader
-from keras.data import DataReader
-from keras.model import KerasModel
-from keras.utils import compile_model, save_result
+from kerascls.checkpoint import load_checkpoint
+from kerascls.config import ConfigReader
+from kerascls.data import DataReader
+from kerascls.model import KerasModel
+from kerascls.utils import compile_model, save_result
 
 if __name__ == '__main__':
     # Get specific config path

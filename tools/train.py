@@ -3,12 +3,12 @@ import os
 
 import pandas as pd
 
-from keras.callback import load_callbacks
-from keras.checkpoint import load_checkpoint
-from keras.config import ConfigReader
-from keras.data import split_and_load_dataset
-from keras.model import KerasModel
-from keras.utils import compile_model, save_result, plot_log_csv
+from kerascls.callback import load_callbacks
+from kerascls.checkpoint import load_checkpoint
+from kerascls.config import ConfigReader
+from kerascls.data import split_and_load_dataset
+from kerascls.model import KerasModel
+from kerascls.utils import compile_model, save_result, plot_log_csv
 
 if __name__ == '__main__':
     # Get specific config path

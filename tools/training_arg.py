@@ -1,8 +1,8 @@
 import os
 import argparse
 
-from keras.config import ConfigReader
-from keras.loss_and_metric import load_optimizer, load_loss, load_list_metric
+from kerascls.config import ConfigReader
+from kerascls.loss_and_metric import load_optimizer, load_loss, load_list_metric
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

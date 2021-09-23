@@ -1,8 +1,8 @@
 import os
 import argparse
 
-from keras.config import ConfigReader
-from keras.model import KerasModel
+from kerascls.config import ConfigReader
+from kerascls.model import KerasModel
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

@@ -7,11 +7,11 @@ def load_optimizer(optimizer: str = "Adam", **parameters) -> tf.keras.optimizers
     """
     :param optimizer: Name of the optimizer
     :param parameters:  Parameter for optimizer
-    :return: tf.keras.optimizer
+    :return: tf.kerascls.optimizer
     """
-    # didn't use .from_config of tf.keras.optimizers
+    # didn't use .from_config of tf.kerascls.optimizers
     # Because it just allow some arguments suach as "clipnorm", "clipvalue", "lr", "decay", "global_clipnorm"
-    optimizer = eval("tf.keras.optimizers." + optimizer)(**parameters)
+    optimizer = eval("tf.kerascls.optimizers." + optimizer)(**parameters)
     return optimizer
 
 
@@ -19,11 +19,11 @@ def load_loss(loss: str = "BinaryCrossentropy", **parameters) -> tf.keras.losses
     """
     :param loss: Name of the loss
     :param parameters: Parameter for loss
-    :return: tf.keras.losses
+    :return: tf.kerascls.losses
     """
-    # didn't use .from_config of tf.keras.losses
+    # didn't use .from_config of tf.kerascls.losses
     # Because it similar to optimizer is allow very few arguments
-    loss = eval("tf.keras.losses." + loss)(**parameters)
+    loss = eval("tf.kerascls.losses." + loss)(**parameters)
     return loss
 
 
@@ -31,9 +31,9 @@ def load_metric(metric_name: str, **parameters) -> tf.keras.metrics.Metric:
     """
     :param metric_name: Name of the metric
     :param parameters: Parameter for metric
-    :return: tf.keras.losses
+    :return: tf.kerascls.losses
     """
-    metric = eval("tf.keras.metrics." + metric_name)(**parameters)
+    metric = eval("tf.kerascls.metrics." + metric_name)(**parameters)
     return metric
 
 

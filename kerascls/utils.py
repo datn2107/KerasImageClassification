@@ -6,7 +6,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from keras.loss_and_metric import load_optimizer, load_loss, load_list_metric
+from kerascls.loss_and_metric import load_optimizer, load_loss, load_list_metric
 
 
 def compile_model(model: tf.keras.models.Model, optimizer_info: Dict, loss_info: Dict,
