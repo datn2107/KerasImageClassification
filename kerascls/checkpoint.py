@@ -16,7 +16,7 @@ def load_latest_weight(weights_cp_dir=None):
     return ".".join(latest_checkpoint.split('.')[:-1])
 
 
-def load_checkpoint(model, model_cp_dir=None, hdf5_cp_path=None, weights_cp_dir=None, weights_cp_path=None):
+def load_checkpoint(model, model_cp_dir=None, hdf5_cp_path=None, weights_cp_dir=None, weights_cp_path=None, **ignore):
     if model_cp_dir is None:
         model = tf.keras.models.load_model(model_cp_dir)
         print("Load checkpoints from ", model_cp_dir)

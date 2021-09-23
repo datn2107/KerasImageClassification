@@ -25,7 +25,7 @@ class KerasModel:
                  trainable_backbone: bool = True, last_pooling_layer: str = "avg", num_dense: int = 0,
                  unit_first_dense_layer: int = 4096, activation_dense: str = 'relu',
                  units_remain_rate: float = 0.5, activation_last_dense: str = 'sigmoid',
-                 dropout_layer: bool = True, dropout_rate: float = 0.3):
+                 dropout_layer: bool = True, dropout_rate: float = 0.3, **ignore):
         self.model_name = model_name
         self.num_class = num_class
         self.last_pooling_layer = last_pooling_layer
