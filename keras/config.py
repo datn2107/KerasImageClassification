@@ -8,20 +8,19 @@ class ConfigReader:
         self.config_parser = configparser.ConfigParser(allow_no_value=True)
         self.config_parser.read(config_path)
 
+    @classmethod
     def get_true_type_from_str(cls, value: str) -> Any:
         if value == "None":
             return None
         elif value == "True" or value == "False":
-            return (value == "True")
+            return value == "True"
+        elif value.isdigit():
+            return int(value)
         else:
             try:
-                return int(value)
-            except Exception as e:
-                try:
-                    return float(value)
-                except Exception as e:
-                    pass
-        return value
+                return float(value)
+            except ValueError:
+                return value
 
     def get_section(self, section: str) -> Dict:
         section_value = dict(self.config_parser[section])
@@ -31,27 +30,19 @@ class ConfigReader:
 
     def get_path(self) -> Dict:
         path_config = self.get_section('Path')
-        if path_config.get('image_dir', None) == None:
-            raise ValueError("Missing directory path of image.")
-        if path_config.get('metadata_path', None) == None:
-            raise ValueError("Missing metadata path.")
-        if path_config.get('saving_dir', None) == None:
-            raise ValueError("Missing saving directory path to save model.")
+        if path_config.get('image_dir', None) is None:
+            raise KeyError("Missing directory path of image.")
+        if path_config.get('metadata_path', None) is None:
+            raise KeyError("Missing metadata path.")
+        if path_config.get('saving_dir', None) is None:
+            raise KeyError("Missing saving directory path to save model.")
         return path_config
 
     def get_checkpoint(self) -> Dict:
-        checkpoint_config = self.get_section('Checkpoint')
+        checkpoint_config = self.get_section('Checkpoints')
+        if 'last_epoch' not in checkpoint_config:
+            checkpoint_config['last_epoch'] = 0
         return checkpoint_config
-
-    def get_data(self) -> Dict:
-        data_config = self.get_section('Data')
-        if 'batch_size' not in data_config:
-            data_config['batch_size'] = 8
-        if 'epoch' not in data_config:
-            data_config['epoch'] = 10
-        if 'last_epoch' not in data_config:
-            data_config['last_epoch'] = 0
-        return data_config
 
     def get_model(self) -> Dict:
         # Get config of base model

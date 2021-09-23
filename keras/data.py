@@ -21,7 +21,7 @@ class DataReader:
         image = tf.cast(image, tf.float32)
         # resize image depend on what model need
         # some model does need specific image size
-        if self.height != None and self.width != None:
+        if self.height is not None and self.width is not None:
             image = tf.image.resize(image, (self.height, self.width))
 
         return image
@@ -45,7 +45,8 @@ def split_and_load_dataset(dataframe, image_dir, batch_size, height, width, trai
                                                        random_state=2107)
     test_dataframe, val_dataframe = train_test_split(test_dataframe, train_size=0.5)
 
-    train_dataset = DataReader(train_dataframe, image_dir, batch_size=batch_size, height=height, width=width).load_dataset(training=True)
+    train_dataset = DataReader(train_dataframe, image_dir, batch_size=batch_size, height=height,
+                               width=width).load_dataset(training=True)
     val_dataset = DataReader(val_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
     test_dataset = DataReader(test_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
 

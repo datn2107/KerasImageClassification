@@ -16,12 +16,16 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, help='Config path')
     parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
+    parser.add_argument('--batch', type=int, help='Batch Size')
+    parser.set_defaults(batch=32)
+    parser.add_argument('--epoch', type=int, help='Number Epoch')
+    parser.set_defaults(epoch=10)
+    parser_args = parser.parse_args()
 
     # Load information from config
-    config_reader = ConfigReader(parser.parse_args().config)
+    config_reader = ConfigReader(parser_args.config)
     path_info = config_reader.get_path()
     model_info = config_reader.get_model()
-    data_info = config_reader.get_data()
     checkpoints = config_reader.get_checkpoint()
 
     saving_dir = path_info['saving_dir']
@@ -43,7 +47,7 @@ if __name__ == '__main__':
     # input_shape of model [batch, height, width, channel]
     input_shape = model.input_shape
     train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, path_info['image_dir'],
-                                                                      batch_size=int(data_info['batch_size']),
+                                                                      batch_size=int(parser_args.batch),
                                                                       height=input_shape[1], width=input_shape[2])
 
     model = load_checkpoint(model, **checkpoints)
@@ -55,9 +59,9 @@ if __name__ == '__main__':
     # Training
     history = model.fit(
         train_dataset,
-        epochs=data_info['epoch'],
+        epochs=parser_args.epoch,
         validation_data=val_dataset,
-        initial_epoch=data_info['last_epoch'],
+        initial_epoch=checkpoints['last_epoch'],
         callbacks=load_callbacks(parser.parse_args().config, saving_dir,
                                  loss_lastest_checkpoint=loss_latest_epoch)
     )

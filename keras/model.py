@@ -51,9 +51,9 @@ class KerasModel:
         shape = model.input_shape
         height, weight, channel = shape[1], shape[2], shape[3]
 
-        if (height == None and weight == None):
+        if height is None and weight is None:
             height = weight = 224
-        return (height, weight, channel)
+        return height, weight, channel
 
     def _get_base_model_output_shape(self) -> List:
         model = self.base_model
@@ -65,19 +65,19 @@ class KerasModel:
         self.num_dense = min(self.num_dense, max_dense)
 
         fc_layer = []
-        if (self.num_dense > 1):
+        if self.num_dense > 1:
             fc_layer.append(Dense(units=self.unit_first_dense_layer, activation=self.activation_dense)(backbone))
-            if (self.dropout_layer):
+            if self.dropout_layer:
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
-        for id in range(2, self.num_dense):
+        for _ in range(2, self.num_dense):
             fc_layer.append(
                 Dense(units=fc_layer[-1].shape[1] * self.units_remain_rate, activation=self.activation_dense)(
                     fc_layer[-1]))
-            if (self.dropout_layer):
+            if self.dropout_layer:
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
-        if (self.num_dense == 1):
+        if self.num_dense == 1:
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(backbone)
         else:
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layer[-1])
@@ -86,11 +86,11 @@ class KerasModel:
     def create_model_keras(self) -> tf.keras.Model:
         input_shape = self._get_base_model_input_shape()
 
-        input = tf.keras.Input(shape=input_shape)
-        preprocess_layer = self.preprocess_layer(input)
+        input_layer = tf.keras.Input(shape=input_shape)
+        preprocess_layer = self.preprocess_layer(input_layer)
         base_model = self.base_model(preprocess_layer)
 
-        if self.last_pooling_layer == None:
+        if self.last_pooling_layer is None:
             flatten_layer = Flatten()(base_model)
             output = self._create_fully_connected_layer(backbone=flatten_layer)
         else:

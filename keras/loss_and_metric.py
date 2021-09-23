@@ -27,13 +27,13 @@ def load_loss(loss: str = "BinaryCrossentropy", **parameters) -> tf.keras.losses
     return loss
 
 
-def load_metric(metric: str, **parameters) -> tf.keras.metrics.Metric:
+def load_metric(metric_name: str, **parameters) -> tf.keras.metrics.Metric:
     """
-    :param loss: Name of the metric
+    :param metric_name: Name of the metric
     :param parameters: Parameter for metric
     :return: tf.keras.losses
     """
-    metric = eval("tf.keras.metrics." + metric)(**parameters)
+    metric = eval("tf.keras.metrics." + metric_name)(**parameters)
     return metric
 
 

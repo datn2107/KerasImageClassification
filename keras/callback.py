@@ -7,14 +7,14 @@ from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 
 
 class ChangingConfig(tf.keras.callbacks.Callback):
-    '''Saving checkpoints and latest epoch to config file to continue training'''  #
+    """Saving checkpoints and latest epoch to config file to continue training"""  #
     def __init__(self, saving_dir):
         super().__init__()
         self.config = configparser.ConfigParser()
         self.config.read(os.path.join(saving_dir, "setting.cfg"))
         self.saving_dir = saving_dir
 
-    def on_epoch_end(self, epoch, logs=None):
+    def on_epoch_end(self, epoch):
         save_model_dir = os.path.join(self.saving_dir, "save_model")
         model_cp_dir = os.path.join(save_model_dir, "epoch_{epoch:04d}".format(epoch=epoch + 1))
         hdf5_cp_path = os.path.join(save_model_dir, "hdf5", "epoch_{epoch:04d}.hdf5".format(epoch=epoch + 1))
@@ -45,7 +45,7 @@ def load_callbacks(config_path, saving_dir, loss_lastest_checkpoint=None):
                                            save_best_only=True)
 
     # load check point of last epoch if resuming training
-    if loss_lastest_checkpoint != None:
+    if loss_lastest_checkpoint is None:
         # .best is save best loss
         save_best_model.best = loss_lastest_checkpoint
         save_best_model_hdf5.best = loss_lastest_checkpoint

@@ -2,6 +2,7 @@ import json
 import os
 from typing import List, Dict
 
+import tensorflow as tf
 import matplotlib.pyplot as plt
 import pandas as pd
 

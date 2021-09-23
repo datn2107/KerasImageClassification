@@ -20,7 +20,6 @@ if __name__ == '__main__':
     config_reader = ConfigReader(parser.parse_args().config)
     path_info = config_reader.get_path()
     model_info = config_reader.get_model()
-    data_info = config_reader.get_data()
     checkpoints = config_reader.get_checkpoint()
 
     saving_dir = path_info['saving_dir']
@@ -31,7 +30,7 @@ if __name__ == '__main__':
         # Load full model from config
         model = load_checkpoint(None, **checkpoints)
     else:
-        model_generator = KerasModel(**model_info, num_class=len(dataframe.columns))
+        model_generator = KerasModel(**model_info, num_class=len(test_dataframe.columns))
         model = model_generator.create_model_keras()
 
     # Compile Model

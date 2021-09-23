@@ -17,14 +17,14 @@ def load_latest_weight(weights_cp_dir=None):
 
 
 def load_checkpoint(model, model_cp_dir=None, hdf5_cp_path=None, weights_cp_dir=None, weights_cp_path=None):
-    if model_cp_dir != None:
+    if model_cp_dir is None:
         model = tf.keras.models.load_model(model_cp_dir)
         print("Load checkpoints from ", model_cp_dir)
-    elif hdf5_cp_path != None:
+    elif hdf5_cp_path is None:
         model = tf.keras.models.load_model(hdf5_cp_path)
         print("Load checkpoints from ", hdf5_cp_path)
-    elif weights_cp_path != None or weights_cp_dir != None:
-        if weights_cp_dir != None:
+    elif weights_cp_path is None or weights_cp_dir is None:
+        if weights_cp_dir is None:
             weights_cp_path = load_latest_weight(weights_cp_dir=weights_cp_dir)
         model = model.load_weights(weights_cp_path)
         print("Load checkpoints from ", weights_cp_path, ".")
