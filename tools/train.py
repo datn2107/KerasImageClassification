@@ -4,11 +4,10 @@ import os
 import pandas as pd
 
 from kerascls.callback import load_callbacks
-from kerascls.checkpoint import load_model, load_weight
+from kerascls.checkpoint import load_model
 from kerascls.config import ConfigReader
 from kerascls.data import split_and_load_dataset
-from kerascls.model import KerasModel
-from kerascls.utils import compile_model, save_result, plot_log_csv
+from kerascls.utils import load_and_compile_model_from_config, save_result, plot_log_csv
 
 if __name__ == '__main__':
     # Get specific config path
@@ -31,17 +30,8 @@ if __name__ == '__main__':
     saving_dir = path_info['saving_dir']
     dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
 
-    # Load model and data
-    # load full model from config
-    model = load_model(None, **checkpoints)
-    if model is None:
-        model_generator = KerasModel(**model_info, num_class=len(dataframe.columns))
-        model = model_generator.create_model_keras()
-        model = load_weight(model, **checkpoints)
-
-    # Compile Model
-    model = compile_model(model, optimizer_info=config_reader.get_optimizer(), loss_info=config_reader.get_loss(),
-                          list_metric_info=config_reader.get_list_metric())
+    # Load and Compile Model with Loss and Metric
+    model = load_and_compile_model_from_config(config_reader, len(dataframe.columns))
 
     # Load Dataset
     # input_shape of model [batch, height, width, channel]
@@ -51,18 +41,18 @@ if __name__ == '__main__':
                                                                       height=input_shape[1], width=input_shape[2])
 
     if any(val is not None for key, val in checkpoints.items() if key != "last_epoch"):
-        loss_latest_epoch = model.evaluate(test_dataset, return_dict=True)['val_loss']
+        loss_latest_checkpoint = model.evaluate(val_dataset, return_dict=True)['val_loss']
     else:
-        loss_latest_epoch = None
+        loss_latest_checkpoint = None
 
     # Training
-    history = model.fit(
+    model.fit(
         train_dataset,
         epochs=parser_args.epoch,
         validation_data=val_dataset,
         initial_epoch=checkpoints['last_epoch'],
-        callbacks=load_callbacks(parser.parse_args().config, saving_dir,
-                                 loss_latest_checkpoint=loss_latest_epoch)
+        callbacks=load_callbacks(parser_args.config, saving_dir,
+                                 loss_latest_checkpoint=loss_latest_checkpoint)
     )
 
     best_model_dir = os.path.join(saving_dir, "save_model", "best")

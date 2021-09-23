@@ -21,13 +21,14 @@ general_model_name = {"Xception": "xception",
 
 
 class KerasModel:
-    def __init__(self, model_name: str, num_class: int, backbone_weights: str = "imagenet",
-                 trainable_backbone: bool = True, last_pooling_layer: str = "avg", num_dense: int = 0,
-                 unit_first_dense_layer: int = 4096, activation_dense: str = 'relu',
-                 units_remain_rate: float = 0.5, activation_last_dense: str = 'sigmoid',
-                 dropout_layer: bool = True, dropout_rate: float = 0.3, **ignore):
+    def __init__(self, model_name: str, num_class: int, input_shape: Tuple[int, ...],
+                 backbone_weights: str = "imagenet", trainable_backbone: bool = True, last_pooling_layer: str = "avg",
+                 num_dense: int = 0, unit_first_dense_layer: int = 4096, activation_dense: str = 'relu',
+                 units_remain_rate: float = 0.5, activation_last_dense: str = 'sigmoid', dropout_layer: bool = True,
+                 dropout_rate: float = 0.3, **ignore):
         self.model_name = model_name
         self.num_class = num_class
+        self.input_shape = input_shape
         self.last_pooling_layer = last_pooling_layer
         self.num_dense = num_dense
         self.unit_first_dense_layer = unit_first_dense_layer
@@ -49,9 +50,11 @@ class KerasModel:
         model = self.base_model
 
         shape = model.input_shape
-        height, weight, channel = shape[1], shape[2], shape[3]
+        height, width, channel = shape[1], shape[2], shape[3]
 
-        return height, weight, channel
+        if height is None and width is None:
+            height, width, channel = self.input_shape
+        return height, width, channel
 
     def _get_base_model_output_shape(self) -> List:
         model = self.base_model

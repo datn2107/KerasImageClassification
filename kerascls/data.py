@@ -18,8 +18,10 @@ class DataReader:
         image = tf.cast(image, tf.float32)
         # resize image depend on what model need
         # some model does need specific image size
-        if self.height is not None or self.width is not None:
+        if self.height is not None and self.width is not None:
             image = tf.image.resize(image, (self.height, self.width))
+        else:
+            image = tf.image.resize(image, (224, 224))
 
         return image
 

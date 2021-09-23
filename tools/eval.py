@@ -3,11 +3,9 @@ import os
 
 import pandas as pd
 
-from kerascls.checkpoint import load_model, load_weight
 from kerascls.config import ConfigReader
 from kerascls.data import DataReader
-from kerascls.model import KerasModel
-from kerascls.utils import compile_model, save_result
+from kerascls.utils import load_and_compile_model_from_config, save_result
 
 if __name__ == '__main__':
     # Get specific config path
@@ -27,17 +25,8 @@ if __name__ == '__main__':
     saving_dir = path_info['saving_dir']
     test_dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
 
-    # Load model and data
-    # load full model from config
-    model = load_model(None, **checkpoints)
-    if model is None:
-        model_generator = KerasModel(**model_info, num_class=len(test_dataframe.columns))
-        model = model_generator.create_model_keras()
-        model = load_weight(model, **checkpoints)
-
-    # Compile Model
-    model = compile_model(model, optimizer_info=config_reader.get_optimizer(), loss_info=config_reader.get_loss(),
-                          list_metric_info=config_reader.get_list_metric())
+    # Load and Compile Model with Loss and Metric
+    model = load_and_compile_model_from_config(config_reader, len(test_dataframe.columns))
 
     # Load Dataset
     # input_shape of model [batch, height, width, channel]

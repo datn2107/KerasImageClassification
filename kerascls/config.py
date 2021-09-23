@@ -45,6 +45,11 @@ class ConfigReader:
         return checkpoint_config
 
     def get_model(self) -> Dict:
+        # Get config of input shape
+        input_config = self.get_section('Input Shape')
+        input_config = {'input_shape': (input_config['height'], input_config['width'], 3)}
+        if input_config['input_shape'] == (None, None, 3):
+            input_config['input_shape'] = (224, 224, 3)
         # Get config of base model
         model_config = self.get_section('Base Model')
         if 'model_name' not in model_config:
@@ -55,7 +60,7 @@ class ConfigReader:
             warnings.warn("Number dense layer is less than 1. It will set to the default num_dense = 3")
             fully_connected_layer_config['num_dense'] = 3
         # combine two dictionary in one
-        return {**model_config, **fully_connected_layer_config}
+        return {**input_config, **model_config, **fully_connected_layer_config}
 
     def get_optimizer(self) -> Dict:
         optimizer_config = self.get_section('Optimizer')
