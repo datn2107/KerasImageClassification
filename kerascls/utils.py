@@ -44,7 +44,7 @@ def plot_log_csv(log_path):
             val_column.append("val_" + column)
 
     log_dir = os.path.dirname(log_path)
-    for index, train_label, val_label in enumerate(zip(train_column, val_column)):
+    for index, (train_label, val_label) in enumerate(zip(train_column, val_column)):
         df.plot('epoch', [train_label, val_label])
         plt.savefig(os.path.join(log_dir, "log_{metric}.svg".format(metric=train_label)))
 
