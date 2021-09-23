@@ -32,10 +32,9 @@ if __name__ == '__main__':
     dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
 
     # Load model and data
-    if checkpoints['model_cp_dir'] is not None or checkpoints['hdf5_cp_path'] is not None:
-        # Load full model from config
-        model = load_model(None, **checkpoints)
-    else:
+    # load full model from config
+    model = load_model(None, **checkpoints)
+    if model is None:
         model_generator = KerasModel(**model_info, num_class=len(dataframe.columns))
         model = model_generator.create_model_keras()
         model = load_weight(model, **checkpoints)
@@ -51,7 +50,7 @@ if __name__ == '__main__':
                                                                       batch_size=int(parser_args.batch),
                                                                       height=input_shape[1], width=input_shape[2])
 
-    if any(checkpoint is not None for checkpoint in checkpoints.values()):
+    if any(val is not None for key, val in checkpoints.items() if key != "last_epoch"):
         loss_latest_epoch = model.evaluate(test_dataset, return_dict=True)['val_loss']
     else:
         loss_latest_epoch = None

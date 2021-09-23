@@ -8,6 +8,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 
 class ChangingConfig(tf.keras.callbacks.Callback):
     """Saving checkpoints and latest epoch to config file to continue training"""  #
+
     def __init__(self, saving_dir):
         super().__init__()
         self.config = configparser.ConfigParser()
@@ -17,14 +18,12 @@ class ChangingConfig(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch):
         save_model_dir = os.path.join(self.saving_dir, "save_model")
         model_cp_dir = os.path.join(save_model_dir, "epoch_{epoch:04d}".format(epoch=epoch + 1))
-        hdf5_cp_path = os.path.join(save_model_dir, "hdf5", "epoch_{epoch:04d}.hdf5".format(epoch=epoch + 1))
-        weight_cp_dir = os.path.join(save_model_dir, "variables")
-        weight_cp_path = os.path.join(model_cp_dir, "variables", "variables")
         self.config.set('Checkpoint', 'model_cp_dir', model_cp_dir)
-        self.config.set('Checkpoint', 'hdf5_cp_path', hdf5_cp_path)
-        self.config.set('Checkpoint', 'weight_cp_dir', weight_cp_dir)
-        self.config.set('Checkpoint', 'weight_cp_path', weight_cp_path)
-        self.config.set('Data', 'last_epoch', str(epoch + 1))
+        self.config.set('Checkpoint', 'hdf5_cp_path',
+                        os.path.join(save_model_dir, "hdf5", "epoch_{epoch:04d}.hdf5".format(epoch=epoch + 1)))
+        self.config.set('Checkpoint', 'weight_cp_dir', os.path.join(save_model_dir, "variables"))
+        self.config.set('Checkpoint', 'weight_cp_path', os.path.join(model_cp_dir, "variables", "variables"))
+        self.config.set('Checkpoint', 'last_epoch', str(epoch + 1))
         with open(os.path.join(self.saving_dir, "setting.cfg"), "w") as configfile:
             self.config.write(configfile)
 
