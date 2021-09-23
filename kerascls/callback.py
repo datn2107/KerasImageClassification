@@ -15,7 +15,7 @@ class ChangingConfig(tf.keras.callbacks.Callback):
         self.config.read(os.path.join(saving_dir, "setting.cfg"))
         self.saving_dir = saving_dir
 
-    def on_epoch_end(self, epoch):
+    def on_epoch_end(self, epoch, logs=None):
         save_model_dir = os.path.join(self.saving_dir, "save_model")
         file_name = "epoch_{epoch:04d}".format(epoch=epoch + 1)
         model_cp_dir = os.path.join(save_model_dir, file_name)
