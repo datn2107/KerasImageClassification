@@ -96,4 +96,4 @@ class KerasModel:
         else:
             output = self._create_fully_connected_layer(backbone=base_model)
 
-        return tf.keras.Model(input, output)
+        return tf.keras.Model(input_layer, output)

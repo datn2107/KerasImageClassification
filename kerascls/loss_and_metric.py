@@ -3,19 +3,19 @@ from typing import List, Dict
 import tensorflow as tf
 
 
-def load_optimizer(optimizer: str = "Adam", **parameters) -> tf.keras.optimizers:
+def load_optimizer(optimizer: str = "Adam", **parameters) -> tf.keras.optimizers.Optimizer:
     """
     :param optimizer: Name of the optimizer
     :param parameters:  Parameter for optimizer
     :return: tf.keras.optimizer
     """
     # didn't use .from_config of tf.keras.optimizers
-    # Because it just allow some arguments suach as "clipnorm", "clipvalue", "lr", "decay", "global_clipnorm"
+    # Because it just allow some arguments such as "clipnorm", "clipvalue", "lr", "decay", "global_clipnorm"
     optimizer = eval("tf.keras.optimizers." + optimizer)(**parameters)
     return optimizer
 
 
-def load_loss(loss: str = "BinaryCrossentropy", **parameters) -> tf.keras.losses:
+def load_loss(loss: str = "BinaryCrossentropy", **parameters) -> tf.keras.losses.Loss:
     """
     :param loss: Name of the loss
     :param parameters: Parameter for loss
@@ -27,13 +27,13 @@ def load_loss(loss: str = "BinaryCrossentropy", **parameters) -> tf.keras.losses
     return loss
 
 
-def load_metric(metric_name: str, **parameters) -> tf.keras.metrics.Metric:
+def load_metric(metric: str, **parameters) -> tf.keras.metrics.Metric:
     """
-    :param metric_name: Name of the metric
+    :param metric: Name of the metric
     :param parameters: Parameter for metric
     :return: tf.keras.losses
     """
-    metric = eval("tf.keras.metrics." + metric_name)(**parameters)
+    metric = eval("tf.keras.metrics." + metric)(**parameters)
     return metric
 
 
