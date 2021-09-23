@@ -5,7 +5,7 @@ from typing import Tuple, List
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten, Dense, Dropout
 
-module_name = "tensorflow.kerascls.applications.{model_name}"
+module_name = "tensorflow.keras.applications.{model_name}"
 general_model_name = {"Xception": "xception",
                       "VGG16": "vgg16", "VGG19": "vgg19",
                       "ResNet50": "resnet", "ResNet101": "resnet", "ResNet152": "resnet",
