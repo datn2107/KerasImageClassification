@@ -51,8 +51,6 @@ class KerasModel:
         shape = model.input_shape
         height, weight, channel = shape[1], shape[2], shape[3]
 
-        if height is None and weight is None:
-            height = weight = 224
         return height, weight, channel
 
     def _get_base_model_output_shape(self) -> List:

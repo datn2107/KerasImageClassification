@@ -29,7 +29,7 @@ class ChangingConfig(tf.keras.callbacks.Callback):
             self.config.write(configfile)
 
 
-def load_callbacks(config_path, saving_dir, loss_lastest_checkpoint=None):
+def load_callbacks(config_path, saving_dir, loss_latest_checkpoint=None):
     # Save checkpoints
     file_name = "epoch_{epoch:04d}"
 
@@ -45,10 +45,10 @@ def load_callbacks(config_path, saving_dir, loss_lastest_checkpoint=None):
                                            save_best_only=True)
 
     # load check point of last epoch if resuming training
-    if loss_lastest_checkpoint is None:
+    if loss_latest_checkpoint is not None:
         # .best is save best loss
-        save_best_model.best = loss_lastest_checkpoint
-        save_best_model_hdf5.best = loss_lastest_checkpoint
+        save_best_model.best = loss_latest_checkpoint
+        save_best_model_hdf5.best = loss_latest_checkpoint
 
     #
     tb_callback = TensorBoard(log_dir=os.path.join(saving_dir, "tensor_board", "logs"),

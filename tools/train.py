@@ -63,7 +63,7 @@ if __name__ == '__main__':
         validation_data=val_dataset,
         initial_epoch=checkpoints['last_epoch'],
         callbacks=load_callbacks(parser.parse_args().config, saving_dir,
-                                 loss_lastest_checkpoint=loss_latest_epoch)
+                                 loss_latest_checkpoint=loss_latest_epoch)
     )
 
     best_model_dir = os.path.join(saving_dir, "save_model", "best")

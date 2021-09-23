@@ -10,10 +10,7 @@ class DataReader:
         self.list_label = list(dataframe.apply(list, axis=1).values)
         self.list_image_path = list(map(lambda image: os.path.join(image_dir, image), self.list_image))
         self.batch_size = batch_size
-        if height is None or width is None:
-            self.height = self.width = 224
-        else:
-            self.height, self.width = height, width
+        self.height, self.width = height, width
 
     def _load_image(self, path):
         image = tf.io.read_file(path)
@@ -21,7 +18,7 @@ class DataReader:
         image = tf.cast(image, tf.float32)
         # resize image depend on what model need
         # some model does need specific image size
-        if self.height is not None and self.width is not None:
+        if self.height is not None or self.width is not None:
             image = tf.image.resize(image, (self.height, self.width))
 
         return image
