@@ -1,15 +1,19 @@
 import json
 import os
-import sys
-import warnings
+from typing import List, Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
+from keras.loss_and_metric import load_optimizer, load_loss, load_list_metric
 
-from utils.compiler import load_checkpoint
+
+def compile_model(model: tf.keras.models.Model, optimizer_info: Dict, loss_info: Dict,
+                  list_metric_info: List[Dict]) -> tf.keras.models.Model:
+    model.compile(optimizer=load_optimizer(**optimizer_info),
+                  loss=load_loss(**loss_info),
+                  metrics=load_list_metric(list_metric_info))
+    return model
 
 
 def plot_log_csv(log_path):
@@ -29,16 +33,6 @@ def plot_log_csv(log_path):
         plt.savefig(os.path.join(log_dir, "log_{metric}.svg".format(metric=train_label)))
 
 
-def save_result(result, saving_dir, model_name):
-    with open(os.path.join(saving_dir, "result.json"), 'w') as f:
+def save_result(result, saving_path, model_name):
+    with open(saving_path, 'w') as f:
         f.write(json.dumps({model_name: result}))
-
-
-def evaluate(model, test_dataset, weights_cp_path=None, model_cp_dir=None):
-    if model_cp_dir == None and weights_cp_path == None:
-        warnings.warn("Warning: There are no additional checkpoint !!!")
-    else:
-        model = load_checkpoint(model, weights_cp_path=weights_cp_path, model_cp_dir=model_cp_dir)
-
-    result = model.evaluate(test_dataset, return_dict=True)
-    print(result)

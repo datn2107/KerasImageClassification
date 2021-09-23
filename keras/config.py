@@ -39,6 +39,10 @@ class ConfigReader:
             raise ValueError("Missing saving directory path to save model.")
         return path_config
 
+    def get_checkpoint(self) -> Dict:
+        checkpoint_config = self.get_section('Checkpoint')
+        return checkpoint_config
+
     def get_data(self) -> Dict:
         data_config = self.get_section('Data')
         if 'batch_size' not in data_config:
