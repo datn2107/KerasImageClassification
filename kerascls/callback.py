@@ -17,10 +17,10 @@ class ChangingConfig(tf.keras.callbacks.Callback):
 
     def on_epoch_end(self, epoch):
         save_model_dir = os.path.join(self.saving_dir, "save_model")
-        model_cp_dir = os.path.join(save_model_dir, "epoch_{epoch:04d}".format(epoch=epoch + 1))
+        file_name = "epoch_{epoch:04d}".format(epoch=epoch + 1)
+        model_cp_dir = os.path.join(save_model_dir, file_name)
         self.config.set('Checkpoint', 'model_cp_dir', model_cp_dir)
-        self.config.set('Checkpoint', 'hdf5_cp_path',
-                        os.path.join(save_model_dir, "hdf5", "epoch_{epoch:04d}.hdf5".format(epoch=epoch + 1)))
+        self.config.set('Checkpoint', 'hdf5_cp_path', os.path.join(save_model_dir, "hdf5", file_name + ".hdf5"))
         self.config.set('Checkpoint', 'weight_cp_dir', os.path.join(save_model_dir, "variables"))
         self.config.set('Checkpoint', 'weight_cp_path', os.path.join(model_cp_dir, "variables", "variables"))
         self.config.set('Checkpoint', 'last_epoch', str(epoch + 1))
