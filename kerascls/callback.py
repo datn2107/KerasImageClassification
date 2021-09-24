@@ -22,7 +22,7 @@ class ChangingConfig(tf.keras.callbacks.Callback):
         section = "Checkpoints"
         self.config.set(section, 'model_cp_dir', model_cp_dir)
         self.config.set(section, 'hdf5_cp_path', os.path.join(save_model_dir, "hdf5", file_name + ".hdf5"))
-        self.config.set(section, 'weights_cp_dir', os.path.join(save_model_dir, "variables"))
+        self.config.set(section, 'weights_cp_dir', os.path.join(model_cp_dir, "variables"))
         self.config.set(section, 'weights_cp_path', os.path.join(model_cp_dir, "variables", "variables"))
         self.config.set(section, 'last_epoch', str(epoch + 1))
         with open(os.path.join(self.saving_dir, "setting.cfg"), "w") as configfile:
