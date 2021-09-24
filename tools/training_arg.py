@@ -20,8 +20,10 @@ if __name__ == '__main__':
         warnings.simplefilter("ignore")
         print("-------------------------------Optimizer-------------------------------")
         print(load_optimizer(**optimizer_info).get_config())
+        print("")
         print("---------------------------------Loss---------------------------------")
         print(load_loss(**loss_info).get_config())
+        print("")
         print("--------------------------------Metrics--------------------------------")
         list_metric = load_list_metric(list_metric_info)
         for metric in list_metric:

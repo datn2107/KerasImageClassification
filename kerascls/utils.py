@@ -16,10 +16,13 @@ def display_summary(model: tf.keras.models.Model, config_reader: ConfigReader):
     # Display Model, Optimizer, Loss and Metrics
     print("---------------------------------Model---------------------------------")
     print(model.summary())
+    print("")
     print("-------------------------------Optimizer-------------------------------")
     print(load_optimizer(**config_reader.get_optimizer()).get_config())
+    print("")
     print("---------------------------------Loss---------------------------------")
-    print(load_loss(**config_reader.get_loss()))
+    print(load_loss(**config_reader.get_loss()).get_config())
+    print("")
     print("--------------------------------Metrics--------------------------------")
     metrics = load_list_metric(config_reader.get_list_metric())
     for metric in metrics:
