@@ -59,6 +59,7 @@ def load_callbacks(config_path, saving_dir, loss_latest_checkpoint=None):
     # Save changing to config
     if config_path != os.path.join(saving_dir, "setting.cfg"):
         shutil.copyfile(config_path, os.path.join(saving_dir, "setting.cfg"))
+        print("Save config to Saving Directory: ", saving_dir)
     save_config = ChangingConfig(saving_dir)
 
     return [save_model, save_best_model, save_model_hdf5, save_best_model_hdf5, tb_callback, csv_logger, save_config]
