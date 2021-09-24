@@ -2,6 +2,7 @@ import argparse
 import os
 import warnings
 
+from kerascls.utils import display_summary_model
 from kerascls.config import ConfigReader
 from kerascls.model import KerasModel
 
@@ -16,6 +17,4 @@ if __name__ == '__main__':
     model_generator = KerasModel(**model_config, num_class=10)
 
     model = model_generator.create_model_keras()
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        print(model.summary())
+    display_summary_model(model)

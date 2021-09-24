@@ -12,22 +12,31 @@ from kerascls.loss_and_metric import load_optimizer, load_loss, load_list_metric
 from kerascls.model import KerasModel
 
 
-def display_summary(model: tf.keras.models.Model, config_reader: ConfigReader):
-    # Display Model, Optimizer, Loss and Metrics
-    print("---------------------------------Model---------------------------------")
-    print(model.summary())
-    print("")
-    print("-------------------------------Optimizer-------------------------------")
-    print(load_optimizer(**config_reader.get_optimizer()).get_config())
-    print("")
-    print("---------------------------------Loss---------------------------------")
-    print(load_loss(**config_reader.get_loss()).get_config())
-    print("")
-    print("--------------------------------Metrics--------------------------------")
-    metrics = load_list_metric(config_reader.get_list_metric())
-    for metric in metrics:
-        if metric != 'accuracy':
-            print(metric.get_config())
+def display_summary_model(model: tf.keras.models.Model):
+    # Display Model
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        print("---------------------------------Model---------------------------------")
+        print(model.summary())
+        print("")
+
+
+def display_training_argumentation(config_reader: ConfigReader):
+    # Display Optimizer, Loss and Metrics
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        print("-----------------------------------------------Optimizer-----------------------------------------------")
+        print(load_optimizer(**config_reader.get_optimizer()).get_config())
+        print("")
+        print("-------------------------------------------------Loss-------------------------------------------------")
+        print(load_loss(**config_reader.get_loss()).get_config())
+        print("")
+        print("------------------------------------------------Metrics------------------------------------------------")
+        metrics = load_list_metric(config_reader.get_list_metric())
+        for metric in metrics:
+            if metric != 'accuracy':
+                print(metric.get_config())
+        print("")
 
 
 def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: int = None) -> tf.keras.models.Model:
@@ -46,9 +55,10 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
     model.compile(optimizer=load_optimizer(**config_reader.get_optimizer()),
                   loss=load_loss(**config_reader.get_loss()),
                   metrics=load_list_metric(config_reader.get_list_metric()))
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        display_summary(model, config_reader)
+
+    # Display
+    display_summary_model(model)
+    display_training_argumentation(config_reader)
 
     return model
 
