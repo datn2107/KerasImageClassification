@@ -1,5 +1,6 @@
-import os
 import argparse
+import os
+import warnings
 
 from kerascls.config import ConfigReader
 from kerascls.loss_and_metric import load_optimizer, load_loss, load_list_metric
@@ -15,17 +16,14 @@ if __name__ == '__main__':
     loss_info = config_reader.get_loss()
     list_metric_info = config_reader.get_list_metric()
 
-    print("\nOptimizer")
-    print(load_optimizer(**optimizer_info).get_config())
-    print()
-
-    print("\nLoss")
-    print(load_loss(**loss_info).get_config())
-    print()
-
-    list_metric = load_list_metric(list_metric_info)
-    print("\nMetrics")
-    for metric in list_metric:
-        if metric != 'accuracy':
-            print(metric.get_config())
-    print()
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        print("-------------------------------Optimizer-------------------------------")
+        print(load_optimizer(**optimizer_info).get_config())
+        print("---------------------------------Loss---------------------------------")
+        print(load_loss(**loss_info).get_config())
+        print("--------------------------------Metrics--------------------------------")
+        list_metric = load_list_metric(list_metric_info)
+        for metric in list_metric:
+            if metric != 'accuracy':
+                print(metric.get_config())

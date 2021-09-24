@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -42,8 +43,9 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
     model.compile(optimizer=load_optimizer(**config_reader.get_optimizer()),
                   loss=load_loss(**config_reader.get_loss()),
                   metrics=load_list_metric(config_reader.get_list_metric()))
-
-    display_summary(model, config_reader)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        display_summary(model, config_reader)
 
     return model
 
