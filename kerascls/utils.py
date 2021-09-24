@@ -11,6 +11,21 @@ from kerascls.loss_and_metric import load_optimizer, load_loss, load_list_metric
 from kerascls.model import KerasModel
 
 
+def display_summary(model: tf.keras.models.Model, config_reader: ConfigReader):
+    # Display Model, Optimizer, Loss and Metrics
+    print("---------------------------------Model---------------------------------")
+    print(model.summary())
+    print("-------------------------------Optimizer-------------------------------")
+    print(load_optimizer(**config_reader.get_optimizer()).get_config())
+    print("---------------------------------Loss---------------------------------")
+    print(load_loss(**config_reader.get_loss()))
+    print("--------------------------------Metrics--------------------------------")
+    metrics = load_list_metric(config_reader.get_list_metric())
+    for metric in metrics:
+        if metric != 'accuracy':
+            print(metric.get_config())
+
+
 def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: int = None) -> tf.keras.models.Model:
     model_info = config_reader.get_model()
     checkpoints = config_reader.get_checkpoint()
@@ -22,12 +37,13 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
         model_generator = KerasModel(**model_info, num_class=num_class)
         model = model_generator.create_model_keras()
         model = load_weight(model, **checkpoints)
-    print(model.summary())
 
     # Compile Model
     model.compile(optimizer=load_optimizer(**config_reader.get_optimizer()),
                   loss=load_loss(**config_reader.get_loss()),
                   metrics=load_list_metric(config_reader.get_list_metric()))
+
+    display_summary(model, config_reader)
 
     return model
 
