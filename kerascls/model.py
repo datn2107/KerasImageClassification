@@ -24,11 +24,60 @@ MODULE_NAME = {"Xception": "xception",
 
 
 class KerasModel:
+    """This class support you to create image classification model with backbone of tf.keras.applications
+
+        Base model:
+            - All the allowed base model is in tf.application.keras
+              [https://www.tensorflow.org/api_docs/python/tf/keras/applications]
+            - This model will contain the pre-processing layer of the base model so it didn't need to normalized data
+            - You can load weight to backbone by pass your own checkpoint path
+                (The file of checkpoint need to match with the format of tensorflow's weight checkpoints)
+                [https://www.tensorflow.org/tutorials/keras/save_and_load#checkpoint_callback_options]
+
+        Fully connected layer:
+            - This will create fully connected layer base on the number of dense layer, activation of them.
+                You also can choose the remain unit fraction after each layer
+            - It also can add dropout layer before each layer
+
+        Attribution:
+            - backbone (tf.keras.Model): Backbone Model
+            - full_model (tf.keras.Model): Full Model create by combination of backbone and fully connected layers
+            - create_full_model: Function use to create full_model and return it
+            - load_weight: Use to load weight into full_model
+    """
+
     def __init__(self, model_name: str, num_class: int, input_shape: Tuple[int, int, int] = (224, 224, 3),
                  backbone_weights: str = "imagenet", trainable_backbone: bool = True, last_pooling_layer: str = "avg",
                  num_dense: int = 1, unit_first_dense_layer: int = 4096, activation_dense: str = 'relu',
-                 units_remain_rate: float = 0.5, activation_last_dense: str = 'sigmoid', dropout_layer: bool = True,
+                 units_remain_fraction: float = 0.5, activation_last_dense: str = 'sigmoid', dropout_layer: bool = True,
                  dropout_rate: float = 0.3, **ignore):
+        """
+        :param model_name (str): Name of base model (backbone)
+                                 [https://www.tensorflow.org/api_docs/python/tf/keras/applications]
+        :param num_class (int): Number of classes to classify images
+        :param input_shape (tuple): Input shape will pass to model
+                                    It need to guarantee that the number of channel is equal 3
+        :param backbone_weights (str): Weight for your backbone model
+                                       There are 3 option 'imagenet', None or path of checkpoint weight
+        :param trainable_backbone (bool): Allowed to train backbone or not
+        :param last_pooling_layer (str): The last pooling layer of backbone
+                                         None: It automatically add a flatten layer before pass to fully connected layer
+                                         'avg': The global average pooling will be apply
+                                         'max': The global max pooling will be apply
+        :param num_dense (int): Number of dense layer in fully connected layers
+        :param unit_first_dense_layer (int): The number unit of the first dense layer
+        :param activation_dense (str): The activation of each dense layer
+        :param units_remain_fraction (float): The remain unit after each dense layer
+        :param activation_last_dense (str): This is the activation of the output layers
+        :param dropout_layer (bool): Add the dropout layer or not
+        :param dropout_rate (float): The dropout rate of each dropout layer
+        :param ignore: This use to ignore every argument that don't allow in this class
+                       While you passing the dict to function (**dict)
+        """
+
+        if input_shape[2] != 3:
+            raise ValueError('The number of channel must be 3, its must be RGB image.')
+
         self.full_model = None
         self.num_class = num_class
         self.input_shape = input_shape
@@ -36,7 +85,7 @@ class KerasModel:
         self.num_dense = num_dense
         self.unit_first_dense_layer = unit_first_dense_layer
         self.activation_dense = activation_dense
-        self.units_remain_rate = units_remain_rate
+        self.units_remain_fraction = units_remain_fraction
         self.activation_last_dense = activation_last_dense
         self.dropout_layer = dropout_layer
         self.dropout_rate = dropout_rate
@@ -52,7 +101,8 @@ class KerasModel:
         self.preprocess_layer = getattr(module, "preprocess_input")
 
     def _create_fully_connected_layers(self, backbone) -> tf.keras.layers.Layer:
-        # Guarantee the unit of first dense layer fit with backbone output
+        # Because each backbone each last pooling layer will output different number of unit
+        # so we need to guarantee that the unit of first dense layer smaller backbone output
         self.unit_first_dense_layer = min(self.unit_first_dense_layer, backbone.shape[1])
         # If the dense layer is too much the model will be broken (unit last dense is smaller than output unit)
         max_dense = floor(log2(self.unit_first_dense_layer)) - ceil(log2(self.num_class))
@@ -67,7 +117,7 @@ class KerasModel:
 
         for _ in range(2, self.num_dense):
             fc_layer.append(
-                Dense(units=fc_layer[-1].shape[1] * self.units_remain_rate, activation=self.activation_dense)(
+                Dense(units=fc_layer[-1].shape[1] * self.units_remain_fraction, activation=self.activation_dense)(
                     fc_layer[-1]))
             if self.dropout_layer:
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
@@ -80,7 +130,8 @@ class KerasModel:
             output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layer[-1])
         return output
 
-    def create_model_keras(self) -> tf.keras.Model:
+    def create_full_model(self):
+        """Combine backbone model and fully connected layers to create full model"""
         input_layer = tf.keras.Input(shape=self.input_shape)
         preprocess_layer = self.preprocess_layer(input_layer)
         backbone = self.backbone(preprocess_layer)
@@ -92,9 +143,22 @@ class KerasModel:
             output = self._create_fully_connected_layers(backbone=backbone)
 
         self.full_model = tf.keras.Model(input_layer, output)
+        return self.full_model
 
-    def load_checkpoint_weight(self, weights_cp_path=None, weights_cp_dir=None):
+    def get_backbone_weight(self):
+        pass
+
+    def load_weight(self, weights_cp_path=None, weights_cp_dir=None, **ignore):
+        """Load checkpoint to model
+
+        :param weights_cp_path: Weights checkpoint path for model
+        :param weights_cp_dir: Directory contain weights checkpoint for model, it will automatic get the latest modify
+                               Load weight checkpoint will consider first before weights checkpoint path
+        :param ignore: Use to ignore undesired arguments while you passing by dict to function (**dict)
+        """
+
         def load_latest_weight():
+            """Load the latest checkpoint in directory which latest determine depend on the modify time"""
             latest_checkpoint = None
             for checkpoint in os.listdir(weights_cp_dir):
                 checkpoint = os.path.join(weights_cp_dir, checkpoint)
@@ -116,6 +180,3 @@ class KerasModel:
             print("Load checkpoints from ", weights_cp_path)
         else:
             warnings.warn("There are no weights checkpoint to load.")
-
-    def get_backbone_weight(self):
-        pass

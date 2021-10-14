@@ -2,7 +2,7 @@ import argparse
 import os
 
 from kerascls.config import ConfigReader
-from kerascls.utils import display_training_argumentation
+from tools.utils import display_training_argumentation
 
 if __name__ == '__main__':
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

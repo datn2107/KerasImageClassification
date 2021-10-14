@@ -7,7 +7,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, TensorBoard
 
 
 class ChangingConfig(tf.keras.callbacks.Callback):
-    """Saving checkpoints and latest epoch to config file to continue training"""  #
+    """Saving checkpoints and latest epoch to config file to resume training in next time"""
 
     def __init__(self, saving_dir):
         super().__init__()
@@ -16,20 +16,22 @@ class ChangingConfig(tf.keras.callbacks.Callback):
         self.saving_dir = saving_dir
 
     def on_epoch_end(self, epoch, logs=None):
+        section = 'Checkpoints'
         save_model_dir = os.path.join(self.saving_dir, "save_model")
         file_name = "epoch_{epoch:04d}".format(epoch=epoch + 1)
         model_cp_dir = os.path.join(save_model_dir, file_name)
-        section = "Checkpoints"
-        self.config.set(section, 'model_cp_dir', model_cp_dir)
-        self.config.set(section, 'hdf5_cp_path', os.path.join(save_model_dir, "hdf5", file_name + ".hdf5"))
+        best_cp_dir = os.path.join(save_model_dir, 'best')
+        # Save latest checkpoint path to config file
         self.config.set(section, 'weights_cp_dir', os.path.join(model_cp_dir, "variables"))
         self.config.set(section, 'weights_cp_path', os.path.join(model_cp_dir, "variables", "variables"))
+        self.config.set(section, 'best_weights_cp_path', os.path.join(best_cp_dir, "variables", "variables"))
+        # Save latest epoch to config file
         self.config.set(section, 'last_epoch', str(epoch + 1))
         with open(os.path.join(self.saving_dir, "setting.cfg"), "w") as configfile:
             self.config.write(configfile)
 
 
-def load_callbacks(config_path, saving_dir, loss_latest_checkpoint=None):
+def load_callbacks(config_path, saving_dir, best_loss=None):
     # Save checkpoints
     file_name = "epoch_{epoch:04d}"
 
@@ -44,19 +46,20 @@ def load_callbacks(config_path, saving_dir, loss_latest_checkpoint=None):
                                            verbose=1,
                                            save_best_only=True)
 
-    # load check point of last epoch if resuming training
-    if loss_latest_checkpoint is not None:
+    # Load best loss to callback save best
+    # if you resume training you need to load best loss that you already trained
+    # if not the new best checkpoint is not include what you trained
+    if best_loss is not None:
         # .best is save best loss
-        save_best_model.best = loss_latest_checkpoint
-        save_best_model_hdf5.best = loss_latest_checkpoint
+        save_best_model.best = best_loss
+        save_best_model_hdf5.best = best_loss
 
-    #
     tb_callback = TensorBoard(log_dir=os.path.join(saving_dir, "tensor_board", "logs"),
                               histogram_freq=1,
                               profile_batch='500,520')
     csv_logger = CSVLogger(os.path.join(saving_dir, "log.csv"), append=True)
 
-    # Save changing to config
+    # Save changing to config file to facility the resuming training
     if config_path != os.path.join(saving_dir, "setting.cfg"):
         shutil.copyfile(config_path, os.path.join(saving_dir, "setting.cfg"))
         print("Save config to Saving Directory: ", saving_dir)

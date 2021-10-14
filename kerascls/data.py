@@ -40,6 +40,7 @@ class DataReader:
         return image
 
     def augment_data(self):
+        """Augment image with the option from config"""
         pass
 
     def load_dataset(self, training=True):
