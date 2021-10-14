@@ -148,7 +148,7 @@ class KerasModel:
     def get_backbone_weight(self):
         pass
 
-    def load_weight(self, weights_cp_path=None, weights_cp_dir=None, **ignore):
+    def load_weights(self, weights_cp_path=None, weights_cp_dir=None, **ignore):
         """Load checkpoint to model
 
         :param weights_cp_path: Weights checkpoint path for model

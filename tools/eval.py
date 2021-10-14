@@ -36,8 +36,8 @@ if __name__ == '__main__':
                               height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Evaluate Model
-    keras_model.load_weight(weights_cp_path=parser.parse_args().checkpoint_path,
-                            weights_cp_dir=parser.parse_args().checkpoint_dir)
+    keras_model.load_weights(weights_cp_path=parser.parse_args().checkpoint_path,
+                             weights_cp_dir=parser.parse_args().checkpoint_dir)
     result = keras_model.full_model.evaluate(test_dataset, return_dict=True)
     print(result)
 

@@ -48,13 +48,13 @@ if __name__ == '__main__':
 
     # Get best loss for resuming training
     if exist_checkpoint(checkpoints):
-        keras_model.load_weight(weights_cp_path=checkpoints['best_weights_cp_path'])
-        best_loss = keras_model.evaluate(val_dataset, return_dict=True)['loss']
+        keras_model.load_weights(weights_cp_path=checkpoints['best_weights_cp_path'])
+        best_loss = keras_model.full_model.evaluate(val_dataset, return_dict=True)['loss']
     else:
         best_loss = None
 
     # Training
-    keras_model.load_weight(**checkpoints)
+    keras_model.load_weights(**checkpoints)
     keras_model.full_model.fit(
         train_dataset,
         epochs=parser_args.epoch,

@@ -29,10 +29,9 @@ class DataReader:
 
     def _load_image(self, path):
         image = tf.io.read_file(path)
-        # decode_jpeg is also can read png file, more cleaner this function is the same as decode_image
-        # but if using decode_image in this function, it will cause the unfix error
-        image = tf.io.decode_jpeg(image, channels=3)
-        image = tf.cast(image, tf.float32)
+        # We need to set expand_animations = False to make sure it return 3D tensor
+        # because it can decode GIF image which return 4D tensor
+        image = tf.io.decode_image(image, channels=3, expand_animations=False, dtype=tf.float32)
         # The model requires all image in the dataset to be the same size
         if self.height is not None and self.width is not None:
             image = tf.image.resize(image, (self.height, self.width))
