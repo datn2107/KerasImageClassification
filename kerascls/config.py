@@ -139,7 +139,8 @@ class ConfigReader:
 
         # Only need to guarantee the model_name and num_dense are not missing or not None
         # because other arguments is has default value in build model class
-        assert full_model_config.get('model_name', None) is None, 'Missing model name'
+        if full_model_config.get('model_name', None) is None:
+            raise(ValueError, 'Missing model name in config')
 
         # guarantee that num_dense not less than 1
         if full_model_config.get('num_dense', None) is not None \
