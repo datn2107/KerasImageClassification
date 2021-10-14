@@ -5,8 +5,7 @@ from typing import List, Dict, Any
 
 
 class ConfigReader:
-    def __init__(self, config_path: str):
-        """Read data from config and return to dict for each section
+    """Read data from config and return to dict for each section
 
         Allowed section:
             - Path: Contain path to image directory, metadata and saving directory
@@ -19,12 +18,9 @@ class ConfigReader:
             - Loss: Contain name of loss and arguments for its
             - Metric*: * is mean you can create more than 1 section with prefix string is "Metric"
                        Each section of this will contain name of metric and its arguments
+    """
 
-        Using assert instead of raise to show raise error because assert will show condition that cause the error
-
-        :param config_path: Absolute path to config file
-        """
-
+    def __init__(self, config_path: str):
         self.config_parser = configparser.ConfigParser(allow_no_value=True)
         self.config_parser.read(config_path)
 
@@ -68,12 +64,14 @@ class ConfigReader:
         :return: Dict contain:
                 - image_dir (str): Path to the directory which contain images (NOT NULL).
                 - metadata_path (str): Path of the .csv file which contain metadata of data (NOT NULL)
-                - saving_dir (str): Path to the directory which use to save checkpoint of model
-                                    Default of saving direction is inside main package
+                - saving_dir (str): Path to the directory which use to save checkpoint of model and training result
+                                    (Default: is inside main package)
         """
         path_config = self.get_section('Path')
-        assert path_config.get('image_dir', None) is None, "Missing directory path of image."
-        assert path_config.get('metadata_path', None) is None, "Missing metadata path."
+        if path_config.get('image_dir', None) is None:
+            raise ValueError("Missing directory path of image in config file.")
+        if path_config.get('metadata_path', None) is None:
+            raise ValueError("Missing metadata path in config file.")
 
         # Set a default for saving directory
         if path_config.get('saving_dir', None) is None:
@@ -90,8 +88,11 @@ class ConfigReader:
         """
         data_config = self.get_section('Data')
         keys = ['train_size', 'val_size', 'test_size']
-        assert any(data_config.get(key, None) is None for key in keys), 'Missing data size arguments'
-        assert sum(data_config.values()) != 1., 'Sum of train, val and test data fraction is not equal 1'
+
+        if any(data_config.get(key, None) is None for key in keys):
+            raise ValueError('Missing data size arguments in file config.')
+        if sum(data_config.values()) != 1.:
+            raise ValueError('Sum of train, val and test data fraction is not equal 1')
         return data_config
 
     def get_checkpoint_config(self) -> Dict:
@@ -166,7 +167,7 @@ class ConfigReader:
     def get_optimizer_config(self) -> Dict:
         """
         :return: Dict contain:
-                - optimizer (str): Optimizer Name
+                - optimizer (str): Optimizer Name (Default: SGD)
                 + Additional it can contain the parameters of optimizer
         """
         optimizer_config = self.get_section('Optimizer')
@@ -177,7 +178,7 @@ class ConfigReader:
     def get_loss_config(self) -> Dict:
         """
         :return: Dict contain:
-                - loss (str): Loss Name
+                - loss (str): Loss Name (Default: BinaryCrossentropy)
                 + Additional it can contain the parameters of loss
         """
         loss_config = self.get_section('Loss')
@@ -188,7 +189,7 @@ class ConfigReader:
     def get_list_metric_config(self) -> List[Dict]:
         """
         :return: List of dict which each contain:
-                - metric (str): Optimizer Name
+                - metric (str): Metric Name (Default: BinaryAccuracy)
                 + Additional it can contain the parameters of metric
         """
         list_metric_config = []

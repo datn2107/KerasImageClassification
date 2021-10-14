@@ -53,7 +53,6 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
     # load full model from config
     keras_model = KerasModel(**model_info, num_class=num_class)
     keras_model.create_full_model()
-    keras_model.load_weight(**checkpoints)
 
     # Compile Model
     keras_model.full_model.compile(optimizer=load_optimizer(**config_reader.get_optimizer_config()),
