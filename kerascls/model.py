@@ -200,8 +200,8 @@ class KerasModel:
                                 - metric (str): Metric Name (Default: BinaryAccuracy)
                                 + Additional it can contain the parameters of metric
         """
-        self.full_model.compile(optimizer=load_optimizer(**loss_info),
-                                loss=load_loss(**optimizer_info),
+        self.full_model.compile(optimizer=load_loss(**optimizer_info),
+                                loss=load_optimizer(**loss_info),
                                 metrics=load_list_metric(metrics_info))
 
     def detection(self, image_path: str):
