@@ -7,7 +7,7 @@ from typing import Tuple, List, Dict
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten, Dense, Dropout
 
-from loss_and_metric import load_loss, load_optimizer, load_list_metric
+from kerascls.loss_and_metric import load_loss, load_optimizer, load_list_metric
 
 # These constant use to define model of tf.keras.applications when we only have model name at string type
 MODULE_NAME_FORMAT = "tensorflow.keras.applications.{model_name}"
