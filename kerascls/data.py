@@ -57,7 +57,8 @@ class DataReader:
         return dataset
 
 
-def split_and_load_dataset(dataframe, image_dir, batch_size, height, width, train_size=0.7, val_size=0.15, test_size=0.15):
+def split_and_load_dataset(dataframe, image_dir, batch_size, height, width,
+                           train_size=0.7, val_size=0.15, test_size=0.15):
     """Split and load data for training and testing"""
 
     # Split dataframe into 3 part training, validation and testing

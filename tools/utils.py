@@ -47,7 +47,6 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
     :param num_class: Number of classes to classify images
     """
     model_info = config_reader.get_model_config()
-    checkpoints = config_reader.get_checkpoint_config()
 
     # Load model and data
     # load full model from config
