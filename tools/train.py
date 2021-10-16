@@ -4,7 +4,7 @@ import os
 import pandas as pd
 
 from kerascls.callback import load_callbacks
-from kerascls.checkpoint import exist_checkpoint
+from tools.checkpoint import exist_checkpoint
 from kerascls.config import ConfigReader
 from kerascls.data import split_and_load_dataset
 from tools.utils import load_and_compile_model_from_config, save_result, plot_log_csv
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
     # Evaluate
     best_weights_cp_path = os.path.join(saving_dir, "save_model", "best", "variables", "variables")
-    keras_model.load_weights(model_cp_dir=best_weights_cp_path)
+    keras_model.load_weights(weights_cp_path=best_weights_cp_path)
     result = keras_model.full_model.evaluate(test_dataset, return_dict=True)
     print(result)
 

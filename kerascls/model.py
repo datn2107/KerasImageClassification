@@ -2,10 +2,12 @@ import os
 import importlib
 import warnings
 from math import floor, ceil, log2
-from typing import Tuple
+from typing import Tuple, List, Dict
 
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten, Dense, Dropout
+
+from loss_and_metric import load_loss, load_optimizer, load_list_metric
 
 # These constant use to define model of tf.keras.applications when we only have model name at string type
 MODULE_NAME_FORMAT = "tensorflow.keras.applications.{model_name}"
@@ -44,6 +46,7 @@ class KerasModel:
             - full_model (tf.keras.Model): Full Model create by combination of backbone and fully connected layers
             - create_full_model: Function use to create full_model and return it
             - load_weight: Use to load weight into full_model
+            - compile: Compile full model with optimizer, loss and metrics
     """
 
     def __init__(self, model_name: str, num_class: int, input_shape: Tuple[int, int, int] = (224, 224, 3),
@@ -100,9 +103,11 @@ class KerasModel:
         # Some need to normalization some not, so we need to use their preprocess_input function to handle it
         self.preprocess_layer = getattr(module, "preprocess_input")
 
-    def _create_fully_connected_layers(self, backbone) -> tf.keras.layers.Layer:
-        # Because each backbone each last pooling layer will output different number of unit
-        # so we need to guarantee that the unit of first dense layer smaller backbone output
+    def _create_fully_connected_layers(self, backbone: tf.keras.Model) -> tf.keras.layers.Layer:
+        """Create fully connected layers and add to backbone model"""
+
+        # Force that the unit of first dense layer smaller backbone output
+        # because each backbone each last pooling layer will output different number of unit
         self.unit_first_dense_layer = min(self.unit_first_dense_layer, backbone.shape[1])
         # If the dense layer is too much the model will be broken (unit last dense is smaller than output unit)
         max_dense = floor(log2(self.unit_first_dense_layer)) - ceil(log2(self.num_class))
@@ -132,6 +137,7 @@ class KerasModel:
 
     def create_full_model(self):
         """Combine backbone model and fully connected layers to create full model"""
+
         input_layer = tf.keras.Input(shape=self.input_shape)
         preprocess_layer = self.preprocess_layer(input_layer)
         backbone = self.backbone(preprocess_layer)
@@ -180,3 +186,23 @@ class KerasModel:
             print("Load checkpoints from ", weights_cp_path)
         else:
             warnings.warn("There are no weights checkpoint to load.")
+
+    def compile(self, loss_info: Dict, optimizer_info: Dict, metrics_info: List[Dict]):
+        """ Compile full model
+
+        :param loss_info: Allowed key
+                            - optimizer (str): Optimizer Name
+                            + Additional it can contain the parameters of optimizer
+        :param optimizer_info: Allowed key
+                                - loss (str): Loss Name (Default: BinaryCrossentropy)
+                                + Additional it can contain the parameters of loss
+        :param metrics_info: List of dict which have allowed key
+                                - metric (str): Metric Name (Default: BinaryAccuracy)
+                                + Additional it can contain the parameters of metric
+        """
+        self.full_model.compile(optimizer=load_optimizer(**loss_info),
+                                loss=load_loss(**optimizer_info),
+                                metrics=load_list_metric(metrics_info))
+
+    def detection(self, image_path: str):
+        pass
