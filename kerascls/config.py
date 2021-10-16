@@ -59,41 +59,41 @@ class ConfigReader:
             section_value[key] = self._get_true_type_from_str(value)
         return section_value
 
-    def get_path_config(self) -> Dict:
-        """
-        :return: Dict contain:
-                - image_dir (str): Path to the directory which contain images (NOT NULL).
-                - metadata_path (str): Path of the .csv file which contain metadata of data (NOT NULL)
-                - saving_dir (str): Path to the directory which use to save checkpoint of model and training result
-                                    (Default: is inside main package)
-        """
-        path_config = self.get_section('Path')
-        if path_config.get('image_dir', None) is None:
-            raise ValueError("Missing directory path of image in config file.")
-        if path_config.get('metadata_path', None) is None:
-            raise ValueError("Missing metadata path in config file.")
-
-        # Set a default for saving directory
-        if path_config.get('saving_dir', None) is None:
-            path_config['saving_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "saving_dir")
-            warnings.warn(f"Saving directory is missing. It will save in %s" % path_config['saving_dir'])
-        return path_config
-
-    def get_data_config(self) -> Dict:
-        """
-        :return: Dict contain:
-                - train_size (float): The fraction of training data
-                - val_size (float): The fraction of validation data
-                - test_size (float): The fraction of testing data
-        """
-        data_config = self.get_section('Data')
-        keys = ['train_size', 'val_size', 'test_size']
-
-        if any(data_config.get(key, None) is None for key in keys):
-            raise ValueError('Missing data size arguments in file config.')
-        if sum(data_config.values()) != 1.:
-            raise ValueError('Sum of train, val and test data fraction is not equal 1')
-        return data_config
+    # def get_path_config(self) -> Dict:
+    #     """
+    #     :return: Dict contain:
+    #             - image_dir (str): Path to the directory which contain images (NOT NULL).
+    #             - metadata_path (str): Path of the .csv file which contain metadata of data (NOT NULL)
+    #             - saving_dir (str): Path to the directory which use to save checkpoint of model and training result
+    #                                 (Default: is inside main package)
+    #     """
+    #     path_config = self.get_section('Path')
+    #     if path_config.get('image_dir', None) is None:
+    #         raise ValueError("Missing directory path of image in config file.")
+    #     if path_config.get('metadata_path', None) is None:
+    #         raise ValueError("Missing metadata path in config file.")
+    #
+    #     # Set a default for saving directory
+    #     if path_config.get('saving_dir', None) is None:
+    #         path_config['saving_dir'] = os.path.join(os.path.dirname(os.path.realpath(__file__)), "saving_dir")
+    #         warnings.warn(f"Saving directory is missing. It will save in %s" % path_config['saving_dir'])
+    #     return path_config
+    #
+    # def get_data_config(self) -> Dict:
+    #     """
+    #     :return: Dict contain:
+    #             - train_size (float): The fraction of training data
+    #             - val_size (float): The fraction of validation data
+    #             - test_size (float): The fraction of testing data
+    #     """
+    #     data_config = self.get_section('Data')
+    #     keys = ['train_size', 'val_size', 'test_size']
+    #
+    #     if any(data_config.get(key, None) is None for key in keys):
+    #         raise ValueError('Missing data size arguments in file config.')
+    #     if sum(data_config.values()) != 1.:
+    #         raise ValueError('Sum of train, val and test data fraction is not equal 1')
+    #     return data_config
 
     def get_checkpoint_config(self) -> Dict:
         """

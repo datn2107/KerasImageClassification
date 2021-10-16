@@ -7,24 +7,39 @@ from kerascls.config import ConfigReader
 from kerascls.data import DataReader
 from tools.utils import load_and_compile_model_from_config, save_result
 
-if __name__ == '__main__':
-    # Get specific config path
-    package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, help='Config path')
-    parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
-    parser.add_argument('--checkpoint_path', type=str, help='Weights checkpoint path')
-    parser.set_defaults(checkpoint_path=None)
-    parser.add_argument('--checkpoint_dir', type=str, help='Directory contain weights checkpoints')
-    parser.set_defaults(checkpoint_dir=None)
+package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+parser = argparse.ArgumentParser()
 
+parser.add_argument('--image_dir', type=str, help='Directory path contain evaluation image')
+parser.set_defaults(image_dir=r'D:\Machine Learning Project\Fashion Recommend System')
+
+parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata for evaluation data')
+parser.set_defaults(metadata_path=r'D:\Machine Learning Project\Fashion Recommend System')
+
+parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result')
+parser.set_defaults(saving_dir=os.path.join(package_dir, "saving_dir"))
+
+parser.add_argument('--config', type=str, help='Config path')
+parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
+
+parser_args = parser.parse_args()
+
+# Check arguments
+if not os.path.exists(parser_args.image_dir):
+    raise ValueError('Image Directory is not exist')
+if not os.path.exists(parser_args.metadata_path):
+    raise ValueError('Metadata is not exist')
+if not os.path.exists(parser_args.saving_dir):
+    print('Create directory: ' + parser_args.saving_dir)
+    os.makedirs(parser_args.saving_dir)
+
+if __name__ == '__main__':
     # Load information from config
     config_reader = ConfigReader(parser.parse_args().config)
-    path_info = config_reader.get_path_config()
     model_info = config_reader.get_model_config()
 
-    saving_dir = path_info['saving_dir']
-    test_dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
+    saving_dir = parser_args.saving_dir
+    test_dataframe = pd.read_csv(parser_args.metadata_path, index_col=0)
 
     # Load and Compile Model with Loss and Metric
     keras_model = load_and_compile_model_from_config(config_reader, len(test_dataframe.columns))
@@ -32,7 +47,7 @@ if __name__ == '__main__':
     # Load Dataset
     # input_shape of model [batch, height, width, channel]
     input_shape = keras_model.full_model.input_shape
-    test_dataset = DataReader(test_dataframe, path_info['image_dir'],
+    test_dataset = DataReader(test_dataframe, parser_args.image_dir,
                               height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Evaluate Model

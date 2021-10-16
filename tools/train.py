@@ -9,28 +9,58 @@ from kerascls.config import ConfigReader
 from kerascls.data import split_and_load_dataset
 from tools.utils import load_and_compile_model_from_config, save_result, plot_log_csv
 
+package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--image_dir', type=str, help='Directory path contain image')
+parser.set_defaults(image_dir=r'D:\Machine Learning Project\Fashion Recommend System')
+
+parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata')
+parser.set_defaults(metadata_path=r'D:\Machine Learning Project\Fashion Recommend System')
+
+parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result')
+parser.set_defaults(saving_dir=os.path.join(package_dir, "saving_dir"))
+
+parser.add_argument('--config', type=str, help='Config path')
+parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
+
+parser.add_argument('--train_size', type=float, help='The fraction of training data')
+parser.set_defaults(train_size=0.7)
+
+parser.add_argument('--val_size', type=float, help='The fraction of validation data')
+parser.set_defaults(val_size=0.15)
+
+parser.add_argument('--test_size', type=float, help='The fraction of testing data')
+parser.set_defaults(test_size=0.15)
+
+parser.add_argument('--batch', type=int, help='Batch Size')
+parser.set_defaults(batch=32)
+
+parser.add_argument('--epoch', type=int, help='Number Epoch')
+parser.set_defaults(epoch=10)
+
+parser_args = parser.parse_args()
+
+# Check arguments
+if not os.path.exists(parser_args.image_dir):
+    raise ValueError('Image Directory is not exist')
+if not os.path.exists(parser_args.metadata_path):
+    raise ValueError('Metadata is not exist')
+if not os.path.exists(parser_args.saving_dir):
+    print('Create directory: ' + parser_args.saving_dir)
+    os.makedirs(parser_args.saving_dir)
+if parser_args.train_size + parser_args.val_size + parser_args.test_size != 1.:
+    raise ValueError('Sum of train, val and test data fraction is not equal 1')
+
+
 if __name__ == '__main__':
-    package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, help='Config path')
-    parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
-
-    parser.add_argument('--batch', type=int, help='Batch Size')
-    parser.set_defaults(batch=32)
-    parser.add_argument('--epoch', type=int, help='Number Epoch')
-    parser.set_defaults(epoch=10)
-
-    parser_args = parser.parse_args()
-
     # Load information from config
     config_reader = ConfigReader(parser_args.config)
-    path_info = config_reader.get_path_config()
-    data = config_reader.get_data_config()
     model_info = config_reader.get_model_config()
     checkpoints = config_reader.get_checkpoint_config()
 
-    saving_dir = path_info['saving_dir']
-    dataframe = pd.read_csv(path_info['metadata_path'], index_col=0)
+    saving_dir = parser_args.saving_dir
+    dataframe = pd.read_csv(parser_args.metadata_path, index_col=0)
 
     # Load and Compile Model with Loss and Metric
     keras_model = load_and_compile_model_from_config(config_reader, len(dataframe.columns))
@@ -39,12 +69,12 @@ if __name__ == '__main__':
     # Some model will need specific input shape to load weight or to have best performance
     # So the shape of input data will fit with input_shape of model
     input_shape = keras_model.full_model.input_shape  # (batch, height, width, channel)
-    train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, path_info['image_dir'],
+    train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, parser_args.image_dir,
                                                                       batch_size=int(parser_args.batch),
                                                                       height=input_shape[1], width=input_shape[2],
-                                                                      train_size=data['train_size'],
-                                                                      val_size=data['val_size'],
-                                                                      test_size=data['test_size'])
+                                                                      train_size=parser_args.train_size,
+                                                                      val_size=parser_args.val_size,
+                                                                      test_size=parser_args.test_size)
 
     # Get best loss for resuming training
     if exist_checkpoint(checkpoints):
