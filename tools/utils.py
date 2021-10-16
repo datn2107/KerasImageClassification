@@ -55,7 +55,7 @@ def load_and_compile_model_from_config(config_reader: ConfigReader, num_class: i
     keras_model.create_full_model()
 
     # Compile Model
-    keras_model.compile(loss_info=config_reader.get_optimizer_config(),
+    keras_model.compile(loss_info=config_reader.get_loss_config(),
                         optimizer_info=config_reader.get_optimizer_config(),
                         metrics_info=config_reader.get_list_metric_config())
 
