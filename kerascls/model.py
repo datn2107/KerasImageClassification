@@ -28,6 +28,11 @@ MODULE_NAME = {"Xception": "xception",
 class KerasModel:
     """This class support you to create image classification model with backbone of tf.keras.applications
 
+        Argumentation:
+            - This model also have 2 argumentation layers:
+                + random flip (horizontal and vertical)
+                + random rotate (3/10 pi)
+
         Base model:
             - All the allowed base model is in tf.application.keras
               [https://www.tensorflow.org/api_docs/python/tf/keras/applications]
@@ -139,7 +144,10 @@ class KerasModel:
         """Combine backbone model and fully connected layers to create full model"""
 
         input_layer = tf.keras.Input(shape=self.input_shape)
-        preprocess_layer = self.preprocess_layer(input_layer)
+        # Add argumentation layer
+        flip_layer = tf.keras.layers.RandomFlip()(input_layer)
+        rotate_layer = tf.keras.layers.RandomRotation(0.3)(flip_layer)
+        preprocess_layer = self.preprocess_layer(rotate_layer)
         backbone = self.backbone(preprocess_layer)
 
         if self.last_pooling_layer is None:
@@ -205,4 +213,5 @@ class KerasModel:
                                 metrics=load_list_metric(metrics_info))
 
     def detection(self, image_path: str):
+
         pass

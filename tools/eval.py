@@ -37,6 +37,7 @@ if __name__ == '__main__':
     # Load information from config
     config_reader = ConfigReader(parser.parse_args().config)
     model_info = config_reader.get_model_config()
+    checkpoint = config_reader.get_checkpoint_config()
 
     saving_dir = parser_args.saving_dir
     test_dataframe = pd.read_csv(parser_args.metadata_path, index_col=0)
@@ -51,8 +52,7 @@ if __name__ == '__main__':
                               height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Evaluate Model
-    keras_model.load_weights(weights_cp_path=parser.parse_args().checkpoint_path,
-                             weights_cp_dir=parser.parse_args().checkpoint_dir)
+    keras_model.load_weights(weights_cp_path=checkpoint['best_weights_cp_path'])
     result = keras_model.full_model.evaluate(test_dataset, return_dict=True)
     print(result)
 
