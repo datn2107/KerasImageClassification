@@ -4,6 +4,7 @@ import warnings
 from math import floor, ceil, log2
 from typing import Tuple, List, Dict
 
+import numpy
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten, Dense, Dropout
 
@@ -52,6 +53,7 @@ class KerasModel:
             - create_full_model: Function use to create full_model and return it
             - load_weight: Use to load weight into full_model
             - compile: Compile full model with optimizer, loss and metrics
+            - detect: Detect image and return result of it
     """
 
     def __init__(self, model_name: str, num_class: int, input_shape: Tuple[int, int, int] = (224, 224, 3),
@@ -212,6 +214,13 @@ class KerasModel:
                                 loss=load_loss(**loss_info),
                                 metrics=load_list_metric(metrics_info))
 
-    def detection(self, image_path: str):
+    def detect(self, image_path: str) -> numpy.array:
+        """Use model to detect image and return numpy array contain probability of each class"""
 
-        pass
+        image = tf.io.read_file(image_path)
+        image = tf.io.decode_image(image, channels=3, expand_animations=False, dtype=tf.float32)
+        image = tf.image.resize(image, (self.input_shape[0], self.input_shape[1]))
+        # Add "batch" dimension because model require tensor shape (None, input_shape[0], input_shape[1], 3)
+        image = tf.expand_dims(image, axis=0)
+
+        return tf.squeeze(self.full_model(image)).numpy()
