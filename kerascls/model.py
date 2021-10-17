@@ -127,6 +127,7 @@ class KerasModel:
             if self.dropout_layer:
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
 
+        # only create num_dense-1 layers because 1 is for output layer
         for _ in range(2, self.num_dense):
             fc_layer.append(
                 Dense(units=fc_layer[-1].shape[1] * self.units_remain_fraction, activation=self.activation_dense)(
