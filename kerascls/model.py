@@ -1,7 +1,6 @@
-import os
 import importlib
+import os
 import warnings
-from math import floor, ceil, log2
 from typing import Tuple, List, Dict
 
 import numpy
@@ -116,9 +115,6 @@ class KerasModel:
         # Force that the unit of first dense layer smaller backbone output
         # because each backbone each last pooling layer will output different number of unit
         self.unit_first_dense_layer = min(self.unit_first_dense_layer, backbone.shape[1])
-        # If the dense layer is too much the model will be broken (unit last dense is smaller than output unit)
-        max_dense = floor(log2(self.unit_first_dense_layer)) - ceil(log2(self.num_class))
-        self.num_dense = min(self.num_dense, max_dense)
 
         # Create Dense layers
         fc_layer = []
@@ -129,8 +125,10 @@ class KerasModel:
 
         # only create num_dense-1 layers because 1 is for output layer
         for _ in range(2, self.num_dense):
+            if int(fc_layer[-1].shape[1] * self.units_remain_fraction) <= self.num_class:
+                break
             fc_layer.append(
-                Dense(units=fc_layer[-1].shape[1] * self.units_remain_fraction, activation=self.activation_dense)(
+                Dense(units=int(fc_layer[-1].shape[1] * self.units_remain_fraction), activation=self.activation_dense)(
                     fc_layer[-1]))
             if self.dropout_layer:
                 fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
