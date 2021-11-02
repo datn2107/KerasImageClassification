@@ -22,8 +22,7 @@ You can build classification model has all backbone model in
 # Installation
 
 ```shell
-$ git clone https://github.com/datn2107/KerasImageClassification.git . 
-$ pip install ./KerasImageClassification
+$ git clone https://github.com/datn2107/KerasImageClassification.git .
 ```
 
 ## Requirements
@@ -35,6 +34,12 @@ $ pip install ./KerasImageClassification
 
 ```shell
 $ pip install ./KerasImageClassification/requirements.txt
+```
+
+## Install KerasImageClassification
+
+```shell
+$ pip install ./KerasImageClassification
 ```
 
 # Data Preparation
@@ -60,7 +65,21 @@ Create a dataframe `.csv` contain metadata of all image
 The config file use to setting model, optimizer, loss and metric is (by default) in `configs/setting.cfg`. 
 For more details you can see in [here](https://github.com/datn2107/KerasImageClassification/tree/master/configs).
 
-# Tutorial 
+# Tutorial
+
+## Model Summary
+```shell
+$ python /content/KerasImageClassification/tools/model_summary.py
+```
+
+Display summary of your model, you can use your own model config by using `--config <config_path>`.
+
+## Optimizer, Loss, and Metrics Config 
+```shell
+$ python /content/KerasImageClassification/tools/model_summary.py
+```
+
+Display config of optimizer, loss and metrics, you can use your own config by using `--config <config_path>`.
 
 ## Training
 ```shell
@@ -71,4 +90,3 @@ You can change the `saving_dir` by using `--siving_dir <new_saving_dir>` argumen
 
 You also can change fraction of training, validation and test by unsing `--train_size`, `--val_size` and `--test_size` 
 by default is `--train_size 0.7 --val_size 0.15 --test_size 0.15` (you need to guarantee that sum of all fraction equal 1)
-
