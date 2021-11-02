@@ -57,7 +57,7 @@ class KerasModel:
 
     def __init__(self, model_name: str, num_class: int, input_shape: Tuple[int, int, int] = (224, 224, 3),
                  backbone_weights: str = "imagenet", trainable_backbone: bool = True, last_pooling_layer: str = "avg",
-                 num_dense: int = 1, unit_first_dense_layer: int = 4096, activation_dense: str = 'relu',
+                 num_dense: int = 1, units_first_dense_layer: int = 4096, activation_dense: str = 'relu',
                  units_remain_fraction: float = 0.5, activation_last_dense: str = 'sigmoid', dropout_layer: bool = True,
                  dropout_rate: float = 0.3, **ignore):
         """
@@ -92,7 +92,7 @@ class KerasModel:
         self.input_shape = input_shape
         self.last_pooling_layer = last_pooling_layer
         self.num_dense = num_dense
-        self.unit_first_dense_layer = unit_first_dense_layer
+        self.unit_first_dense_layer = units_first_dense_layer
         self.activation_dense = activation_dense
         self.units_remain_fraction = units_remain_fraction
         self.activation_last_dense = activation_last_dense

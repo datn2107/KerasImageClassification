@@ -14,18 +14,39 @@ image classification
 * Custom fully connected layer through config
 * Easy to config model, optimizer, loss and metrics
 
+# Model Zoo 
+
+You can build classification model has all backbone model in 
+[tf.keras.application](https://www.tensorflow.org/api_docs/python/tf/keras/applications#functions)
+
+# Installation
+
+```shell
+$ git clone https://github.com/datn2107/KerasImageClassification.git . 
+$ pip install ./KerasImageClassification
+```
+
+## Requirements
+* tensorflow >= 2.6
+* pandas >= 1.1
+* numpy >= 1.19
+* matplotlib >= 3.4
+* sklearn
+
+```shell
+$ pip install ./KerasImageClassification/requirements.txt
+```
+
 # Data Preparation
 
-## Dataset
-
-### Image Folder
+## Image Folder
 Create a directory contain all image
 ```
 image data root (folder containing all images)
 |── All image files 
 ```
 
-### Dataframe
+## Dataframe
 Create a dataframe `.csv` contain metadata of all image
 ```
     filename    | Class 1 | Class 2 | Class3

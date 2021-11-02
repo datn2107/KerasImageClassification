@@ -86,7 +86,7 @@ class ConfigReader:
                 - last_pooling_layer (str): The last layer of backbone model
 
                 - num_dense (int): Number of dense layer of fully connected layers
-                - unit_first_dense_layer (int): Number units in each dense layer
+                - units_first_dense_layer (int): Number units in each dense layer
                 - units_remain_fraction (float): The fraction of remain unit
                 - activation_dense (str): The activation of each dense layer
                 - activation_last_dense (str): The activation of the last dense layer or the output layer
@@ -157,7 +157,7 @@ class ConfigReader:
         list_metric_config = []
 
         for section in self.config_parser.sections():
-            if "Metric" not in section:
+            if not section.startswith("Metric"):
                 continue
             metric_config = self.get_section(section)
             if 'metric' not in metric_config:
