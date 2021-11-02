@@ -60,11 +60,11 @@ def load_callbacks(config_path, saving_dir, best_loss=None):
     csv_logger = CSVLogger(os.path.join(saving_dir, "log.csv"), append=True)
 
     # Save changing to config file to facility the resuming training
-    if os.path.exists(os.path.join(saving_dir, "setting.cfg")):
+    if not os.path.exists(os.path.join(saving_dir, "setting.cfg")):
         shutil.copyfile(config_path, os.path.join(saving_dir, "setting.cfg"))
         print("Save config to Saving Directory: ", saving_dir)
     else:
-        raise 'Cannot saving setting.cfg file'
+        raise 'Cannot saving setting.cfg file. Config file is already contain in ' + saving_dir
     save_config = ChangingConfig(saving_dir)
 
     return [save_model, save_best_model, save_model_hdf5, save_best_model_hdf5, tb_callback, csv_logger, save_config]
