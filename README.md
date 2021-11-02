@@ -63,7 +63,7 @@ Create a dataframe `.csv` contain metadata of all image
 ## Config
 
 The config file use to setting model, optimizer, loss and metric is (by default) in `configs/setting.cfg`. 
-For more details you can see in [here](https://github.com/datn2107/KerasImageClassification/tree/master/configs).
+For more details you can see in [here](https://github.com/datn2107/KerasImageClassification/blob/master/configs/CONFIG.md).
 
 # Tutorial
 
