@@ -68,7 +68,7 @@ best_weights_cp_path = None
 last_epoch = 0
 ```
 
-There are 2 ways to load checkpoint into model.
+There are 2 ways to load weight into model.
 
 * `weights_cp_dir` use to define the directory path which contain checkpoint weights of model
   (the latest modify checkpoint will be selected) (Load first if it is not None)
