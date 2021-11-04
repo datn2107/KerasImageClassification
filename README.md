@@ -47,7 +47,11 @@ $ pip install ./KerasImageClassification
 
 ## Image Folder
 
-Create a directory contain all image
+Create a directory contain all image. 
+
+**Note**: We already add two basic data argumentation in training process, which are:
+* Random flip horizontal and vertical
+* Random rotate 30 degree 
 
 ```
 data_root (folder containing all images)
@@ -113,11 +117,17 @@ moved into `saving_dir` and it will contain your model config and checkpoint inf
 You also can change fraction of training, validation and test by using `--train_size`, `--val_size` and `--test_size`
 by default is `--train_size 0.7 --val_size 0.15 --test_size 0.15` (you need to ensure that sum of all fraction equal 1)
 
+You specify config file by using `--config <config_path>`, if not (by default) it will use the config file
+in `configs/setting.cfg` to load model and checkpoint.
+
 ## Evaluation
 
 ```shell
-$ python KerasImageClassification/tools/eval.py --image_dir <data_root> --metadata_path <metadata_path> --config <config_path>
+$ python KerasImageClassification/tools/eval.py --image_dir <data_root> --metadata_path <metadata_path>
 ```
+
+The model will load model by the config file, evaluate it and save the result in saving directory. Similar to training,
+you also can specify the saving directory and config file by using `--saving_dir` and `config` arguments.
 
 All data referred by metadata file will be used to evaluate.
 
@@ -125,6 +135,3 @@ To using this you need to specify config or model you want to use, and in that c
 not None or not define. The weight of model will load from this file, so that you also need to ensure that the model in
 config file is similar to the weights in `best_weights_cp_path`.
 
-By default, the result of this evaluation is saved in `KerasImageClassification/saving_dir`. You can change
-the `saving_dir` by using `--siving_dir <new_saving_dir>`
-argument.
