@@ -47,11 +47,7 @@ $ pip install ./KerasImageClassification
 
 ## Image Folder
 
-Create a directory contain all image. 
-
-**Note**: We already add two basic data argumentation in training process, which are:
-* Random flip horizontal and vertical
-* Random rotate 30 degree 
+Create a directory contain all image.
 
 ```
 data_root (folder containing all images)
@@ -88,15 +84,15 @@ in [here](https://github.com/datn2107/KerasImageClassification/blob/master/confi
 ## Model Summary
 
 ```shell
-$ python /content/KerasImageClassification/tools/model_summary.py
+$ python KerasImageClassification/tools/model_summary.py
 ```
 
 Display summary of your model, you can use your own model config by using `--config <config_path>`.
 
 ## Optimizer, Loss, and Metrics Config
 
-```shell
-$ python /content/KerasImageClassification/tools/training_arg.py
+```shell  
+$ python KerasImageClassification/tools/training_arg.py
 ```
 
 Display config of optimizer, loss and metrics, you can use your own config by using `--config <config_path>`.
