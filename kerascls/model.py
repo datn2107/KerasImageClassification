@@ -108,33 +108,30 @@ class KerasModel:
     def _create_fully_connected_layers(self, backbone: tf.keras.Model) -> tf.keras.layers.Layer:
         """Create fully connected layers and add to backbone model"""
 
-        # Force that the unit of first dense layer smaller backbone output
+        fc_layers = [backbone]
+        if self.last_pooling_layer is None:
+            fc_layers = [Dropout(rate=0.5)(backbone)]
+
+        # Ensure the unit of first dense layer smaller backbone output
         # because each backbone each last pooling layer will output different number of unit
-        self.unit_first_dense_layer = min(self.unit_first_dense_layer, backbone.shape[1])
-
-        # Create Dense layers
-        fc_layer = []
+        self.unit_first_dense_layer = min(self.unit_first_dense_layer, fc_layers[-1].shape[1])
+        # Create first Dense layer
         if self.num_dense > 1:
-            fc_layer.append(Dense(units=self.unit_first_dense_layer, activation=self.activation_dense)(backbone))
+            fc_layers.append(Dense(units=self.unit_first_dense_layer, activation=self.activation_dense)(fc_layers[-1]))
             if self.dropout_layer:
-                fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
-
-        # only create num_dense-1 layers because 1 is for output layer
+                fc_layers.append(Dropout(rate=self.dropout_rate)(fc_layers[-1]))
+        # only create num_dense - 1 layers because 1 is for output layer
         for _ in range(2, self.num_dense):
-            if int(fc_layer[-1].shape[1] * self.units_remain_fraction) <= self.num_class:
+            if int(fc_layers[-1].shape[1] * self.units_remain_fraction) < self.num_class:
                 break
-            fc_layer.append(
-                Dense(units=int(fc_layer[-1].shape[1] * self.units_remain_fraction), activation=self.activation_dense)(
-                    fc_layer[-1]))
+            fc_layers.append(
+                Dense(units=int(fc_layers[-1].shape[1] * self.units_remain_fraction), activation=self.activation_dense)(
+                    fc_layers[-1]))
             if self.dropout_layer:
-                fc_layer.append(Dropout(rate=self.dropout_rate)(fc_layer[-1]))
+                fc_layers.append(Dropout(rate=self.dropout_rate)(fc_layers[-1]))
 
         # Create output layer
-        if self.num_dense == 1:
-            # num_dense == 1 it mean these model don't need any dense layer
-            output = Dense(units=self.num_class, activation=self.activation_last_dense)(backbone)
-        else:
-            output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layer[-1])
+        output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layers[-1])
         return output
 
     def create_full_model(self):

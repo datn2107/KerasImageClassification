@@ -1,5 +1,4 @@
 import configparser
-import os
 import warnings
 from typing import List, Dict, Any
 
@@ -111,14 +110,14 @@ class ConfigReader:
             warnings.warn("Number dense layer is less than 1. It will set to the default num_dense = 1")
             full_model_config['num_dense'] = 1
 
-        # Ignore parameter instead of None value in base_model and fully_connected_layer section
+        # Ignore parameter has None value (except last_pooling_layer) in base_model and fully_connected_layer section
         # because this will pass to function by **dict
         # and parameters in function is already has default value
         # so if it has None value it will broke default value of function
         if full_model_config['input_shape'][0] is None or full_model_config['input_shape'][1] is None:
             full_model_config.pop('input_shape')
-        keys = ['backbone_weights', 'trainable_backbone', 'last_pooling_layer',
-                'num_dense', 'unit_first_dense_layer', 'units_remain_fraction',
+        keys = ['backbone_weights', 'trainable_backbone', 'num_dense',
+                'unit_first_dense_layer', 'units_remain_fraction',
                 'activation_dense', 'activation_last_dense', 'dropout_layer', 'dropout_rate']
         for key in keys:
             if key in full_model_config and full_model_config.get(key) is None:
