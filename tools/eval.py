@@ -10,17 +10,14 @@ from tools.utils import load_and_compile_model_from_config, save_result
 package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--image_dir', type=str, help='Directory path contain evaluation image')
-parser.set_defaults(image_dir=r'D:\Machine Learning Project\Fashion Recommend System')
-
-parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata for evaluation data')
-parser.set_defaults(metadata_path=r'D:\Machine Learning Project\Fashion Recommend System')
-
-parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result')
-parser.set_defaults(saving_dir=os.path.join(package_dir, "saving_dir"))
-
-parser.add_argument('--config', type=str, help='Config path')
-parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
+parser.add_argument('--image_dir', type=str, help='Directory path contain evaluation image',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata for evaluation data',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result',
+                    default=os.path.join(package_dir, "saving_dir"))
+parser.add_argument('--config', type=str, help='Config path',
+                    default=os.path.join(package_dir, "configs", "setting.cfg"))
 
 parser_args = parser.parse_args()
 

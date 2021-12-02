@@ -12,32 +12,24 @@ from tools.utils import load_and_compile_model_from_config, save_result, plot_lo
 package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--image_dir', type=str, help='Directory path contain image')
-parser.set_defaults(image_dir=r'D:\Machine Learning Project\Fashion Recommend System')
-
-parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata')
-parser.set_defaults(metadata_path=r'D:\Machine Learning Project\Fashion Recommend System')
-
-parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result')
-parser.set_defaults(saving_dir=os.path.join(package_dir, "saving_dir"))
-
-parser.add_argument('--config', type=str, help='Config path')
-parser.set_defaults(config=os.path.join(package_dir, "configs", "setting.cfg"))
-
-parser.add_argument('--train_size', type=float, help='The fraction of training data')
-parser.set_defaults(train_size=0.7)
-
-parser.add_argument('--val_size', type=float, help='The fraction of validation data')
-parser.set_defaults(val_size=0.15)
-
-parser.add_argument('--test_size', type=float, help='The fraction of testing data')
-parser.set_defaults(test_size=0.15)
-
-parser.add_argument('--batch', type=int, help='Batch Size')
-parser.set_defaults(batch=32)
-
-parser.add_argument('--epoch', type=int, help='Number Epoch')
-parser.set_defaults(epoch=10)
+parser.add_argument('--image_dir', type=str, help='Directory path contain image',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result',
+                    default=os.path.join(package_dir, "saving_dir"))
+parser.add_argument('--config', type=str, help='Config path',
+                    default=os.path.join(package_dir, "configs", "setting.cfg"))
+parser.add_argument('--train_size', type=float, help='The fraction of training data',
+                    default=0.7)
+parser.add_argument('--val_size', type=float, help='The fraction of validation data',
+                    default=0.15)
+parser.add_argument('--test_size', type=float, help='The fraction of testing data',
+                    default=0.15)
+parser.add_argument('--batch', type=int, help='Batch Size',
+                    default=32)
+parser.add_argument('--epoch', type=int, help='Number Epoch',
+                    default=10)
 
 parser_args = parser.parse_args()
 
