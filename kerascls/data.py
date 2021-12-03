@@ -60,12 +60,24 @@ def split_and_load_dataset(dataframe, image_dir, batch_size, height, width,
     # Split dataframe into 3 part training, validation and testing
     train_dataframe, test_dataframe = train_test_split(dataframe, train_size=train_size, shuffle=True,
                                                        random_state=2107)
-    test_dataframe, val_dataframe = train_test_split(test_dataframe, train_size=test_size/(val_size+train_size))
+    test_dataframe, val_dataframe = train_test_split(test_dataframe, train_size=test_size / (val_size + train_size))
 
     # Load dataset for each part
     train_dataset = DataReader(train_dataframe, image_dir, batch_size=batch_size, height=height,
                                width=width).load_dataset(training=True)
     val_dataset = DataReader(val_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
     test_dataset = DataReader(test_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
+
+    return train_dataset, val_dataset, test_dataset
+
+
+def load_train_val_test(dataframe, image_dir, batch_size, height, width):
+    # Load dataset for each part
+    train_dataset = DataReader(dataframe[0], image_dir[0], batch_size=batch_size, height=height,
+                               width=width).load_dataset(training=True)
+    val_dataset = DataReader(dataframe[1], image_dir[1], batch_size=batch_size, height=height,
+                             width=width).load_dataset(training=False)
+    test_dataset = DataReader(dataframe[2], image_dir[2], batch_size=batch_size, height=height,
+                              width=width).load_dataset(training=False)
 
     return train_dataset, val_dataset, test_dataset

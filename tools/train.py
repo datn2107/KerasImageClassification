@@ -6,12 +6,26 @@ import pandas as pd
 from kerascls.callback import load_callbacks
 from tools.checkpoint import exist_checkpoint
 from kerascls.config import ConfigReader
-from kerascls.data import split_and_load_dataset
+from kerascls.data import split_and_load_dataset, load_train_val_test
 from tools.utils import load_and_compile_model_from_config, save_result, plot_log_csv
 
 package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 parser = argparse.ArgumentParser()
 
+###
+parser.add_argument('--img_dir_train', type=str, help='Directory path contain image',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--df_train', type=str, help='Dataframe contain metadata',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--img_dir_val', type=str, help='Directory path contain image',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--df_val', type=str, help='Dataframe contain metadata',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--img_dir_test', type=str, help='Directory path contain image',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+parser.add_argument('--df_test', type=str, help='Dataframe contain metadata',
+                    default=r'D:\Machine Learning Project\Fashion Recommend System')
+###
 parser.add_argument('--image_dir', type=str, help='Directory path contain image',
                     default=r'D:\Machine Learning Project\Fashion Recommend System')
 parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata',
@@ -34,15 +48,15 @@ parser.add_argument('--epoch', type=int, help='Number Epoch',
 parser_args = parser.parse_args()
 
 # Check arguments
-if not os.path.exists(parser_args.image_dir):
-    raise ValueError('Image Directory is not exist')
-if not os.path.exists(parser_args.metadata_path):
-    raise ValueError('Metadata is not exist')
+# if not os.path.exists(parser_args.image_dir):
+#     raise ValueError('Image Directory is not exist')
+# if not os.path.exists(parser_args.metadata_path):
+#     raise ValueError('Metadata is not exist')
 if not os.path.exists(parser_args.saving_dir):
     print('Create directory: ' + parser_args.saving_dir)
     os.makedirs(parser_args.saving_dir)
-if parser_args.train_size + parser_args.val_size + parser_args.test_size != 1.:
-    raise ValueError('Sum of train, val and test data fraction is not equal 1')
+# if parser_args.train_size + parser_args.val_size + parser_args.test_size != 1.:
+#     raise ValueError('Sum of train, val and test data fraction is not equal 1')
 
 
 if __name__ == '__main__':
@@ -61,12 +75,16 @@ if __name__ == '__main__':
     # Some model will need specific input shape to load weight or to have best performance
     # So the shape of input data will fit with input_shape of model
     input_shape = keras_model.full_model.input_shape  # (batch, height, width, channel)
-    train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, parser_args.image_dir,
-                                                                      batch_size=int(parser_args.batch),
-                                                                      height=input_shape[1], width=input_shape[2],
-                                                                      train_size=parser_args.train_size,
-                                                                      val_size=parser_args.val_size,
-                                                                      test_size=parser_args.test_size)
+    train_dataset, val_dataset, test_dataset = load_train_val_test(
+        [parser_args.df_train, parser_args.df_val, parser_args.df_test],
+        [parser_args.img_dir_train, parser_args.img_dir_val, parser_args.img_dir_test],
+        batch_size=int(parser_args.batch), height=input_shape[1], width=input_shape[2],)
+    # train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, parser_args.image_dir,
+    #                                                                   batch_size=int(parser_args.batch),
+    #                                                                   height=input_shape[1], width=input_shape[2],
+    #                                                                   train_size=parser_args.train_size,
+    #                                                                   val_size=parser_args.val_size,
+    #                                                                   test_size=parser_args.test_size)
 
     # Get best loss for resuming training
     if exist_checkpoint(checkpoints):
