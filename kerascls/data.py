@@ -72,8 +72,6 @@ def split_and_load_dataset(dataframe, image_dir, batch_size, height, width,
 
 
 def load_train_val_test(dataframe, image_dir, batch_size, height, width):
-    print(dataframe)
-    print(image_dir)
     # Load dataset for each part
     train_dataset = DataReader(dataframe[0], image_dir[0], batch_size=batch_size, height=height,
                                width=width).load_dataset(training=True)

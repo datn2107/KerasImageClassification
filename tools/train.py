@@ -67,6 +67,9 @@ if __name__ == '__main__':
 
     saving_dir = parser_args.saving_dir
     dataframe = pd.read_csv(parser_args.df_train, index_col=0)
+    df_train = pd.read_csv(parser_args.df_train, index_col=0)
+    df_val = pd.read_csv(parser_args.df_val, index_col=0)
+    df_test = pd.read_csv(parser_args.df_test, index_col=0)
 
     # Load and Compile Model with Loss and Metric
     keras_model = load_and_compile_model_from_config(config_reader, len(dataframe.columns))
@@ -76,7 +79,7 @@ if __name__ == '__main__':
     # So the shape of input data will fit with input_shape of model
     input_shape = keras_model.full_model.input_shape  # (batch, height, width, channel)
     train_dataset, val_dataset, test_dataset = load_train_val_test(
-        [parser_args.df_train, parser_args.df_val, parser_args.df_test],
+        [df_train, df_val, df_test],
         [parser_args.img_dir_train, parser_args.img_dir_val, parser_args.img_dir_test],
         batch_size=int(parser_args.batch), height=input_shape[1], width=input_shape[2],)
     # train_dataset, val_dataset, test_dataset = split_and_load_dataset(dataframe, parser_args.image_dir,
