@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=str, help='Config path',
                         default=os.path.join(package_dir, "configs", "setting.cfg"))
 
-    print(os.path.join(package_dir, "configs", "setting.cfg"))
+    print(parser.parse_args().config)
 
     config_reader = ConfigReader(parser.parse_args().config)
     model_config = config_reader.get_model_config()

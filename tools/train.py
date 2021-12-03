@@ -66,7 +66,7 @@ if __name__ == '__main__':
     checkpoints = config_reader.get_checkpoint_config()
 
     saving_dir = parser_args.saving_dir
-    dataframe = pd.read_csv(parser_args.metadata_path, index_col=0)
+    dataframe = pd.read_csv(parser_args.df_train, index_col=0)
 
     # Load and Compile Model with Loss and Metric
     keras_model = load_and_compile_model_from_config(config_reader, len(dataframe.columns))
