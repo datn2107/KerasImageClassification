@@ -4,12 +4,12 @@ import os
 import pandas as pd
 
 from kerascls.config import ConfigReader
-from kerascls.data import DataReader
+from kerascls.data import DataLoader
 from tools.utils import load_and_compile_model_from_config, save_result
 
 package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-parser = argparse.ArgumentParser()
 
+parser = argparse.ArgumentParser()
 parser.add_argument('--image_dir', type=str, help='Directory path contain evaluation image',
                     default=r'D:\Machine Learning Project\Fashion Recommend System')
 parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadata for evaluation data',
@@ -17,8 +17,7 @@ parser.add_argument('--metadata_path', type=str, help='Dataframe contain metadat
 parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result',
                     default=os.path.join(package_dir, "saving_dir"))
 parser.add_argument('--config', type=str, help='Config path',
-                    default=os.path.join(package_dir, "configs", "setting.cfg"))
-
+                    default=os.path.join(package_dir, "configs", "setting.yaml"))
 parser_args = parser.parse_args()
 
 # Check arguments
@@ -45,7 +44,7 @@ if __name__ == '__main__':
     # Load Dataset
     # input_shape of model [batch, height, width, channel]
     input_shape = keras_model.full_model.input_shape
-    test_dataset = DataReader(test_dataframe, parser_args.image_dir,
+    test_dataset = DataLoader(test_dataframe, parser_args.image_dir,
                               height=input_shape[1], width=input_shape[2]).load_dataset(training=False)
 
     # Evaluate Model

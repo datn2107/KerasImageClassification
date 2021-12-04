@@ -1,0 +1,33 @@
+Checkpoints:
+  weights_cp_dir: null
+  weights_cp_path: null
+  best_weights_cp_path: null
+  last_epoch: null
+
+InputShape:
+  height: null
+  width: null
+
+BaseModel:
+  model_name: ResNet50V2
+  backbone_weights: imagenet
+  trainable_backbone: True
+  last_pooling_layer: null
+
+FullyConnectedLayer:
+  num_dense: 3
+  units_first_dense_layer: 4096
+  units_remain_fraction: 0.5
+  activation_dense: relu
+  activation_last_dense: sigmoid
+  dropout_layer: false
+  dropout_rate: 0.3
+
+Optimizer:
+  optimizer: Adam
+
+Loss:
+  loss: BinaryCrossentropy
+
+Metric:
+  metric: BinaryAccuracy

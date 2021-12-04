@@ -4,7 +4,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
 
-class DataReader:
+class DataLoader:
     def __init__(self, dataframe, image_dir, batch_size=8, height=224, width=224):
         """ Build tf.data.dataset from dataframe
 
@@ -12,7 +12,7 @@ class DataReader:
             Index column is the column contain image name
             n other columns are the label of image, value is 0 or 1
         All image WILL be resize to the same size
-        But it WON'T be normalize, it will be handle by preprocessing layer of model\
+        But it WON'T be normalize, it will be handle by preprocessing layer of model
 
         :param dataframe: Metadata of dataset you want to build
         :param image_dir: Path to directory that contain image
@@ -22,8 +22,8 @@ class DataReader:
         """
 
         self.list_image = list(dataframe.index)
-        self.list_label = list(dataframe.apply(tuple, axis=1).values)
         self.list_image_path = list(map(lambda image: os.path.join(image_dir, image), self.list_image))
+        self.list_label = list(dataframe.apply(tuple, axis=1).values)
         self.batch_size = batch_size
         self.height, self.width = height, width
 
@@ -60,24 +60,25 @@ def split_and_load_dataset(dataframe, image_dir, batch_size, height, width,
     # Split dataframe into 3 part training, validation and testing
     train_dataframe, test_dataframe = train_test_split(dataframe, train_size=train_size, shuffle=True,
                                                        random_state=2107)
-    test_dataframe, val_dataframe = train_test_split(test_dataframe, train_size=test_size / (val_size + train_size))
+    yield DataLoader(train_dataframe, image_dir, batch_size=batch_size, height=height,
+                     width=width).load_dataset(training=True)
 
-    # Load dataset for each part
-    train_dataset = DataReader(train_dataframe, image_dir, batch_size=batch_size, height=height,
-                               width=width).load_dataset(training=True)
-    val_dataset = DataReader(val_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
-    test_dataset = DataReader(test_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
+    val_dataframe = None
+    if test_size != 0 and val_size != 0:
+        test_dataframe, val_dataframe = train_test_split(test_dataframe, train_size=test_size / (val_size + train_size))
+    elif val_size != 0:
+        val_dataframe = test_dataframe
 
-    return train_dataset, val_dataset, test_dataset
+    yield (DataLoader(val_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
+           if val_size != 0 else None)
+
+    yield (DataLoader(test_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
+           if test_size != 0 else None)
 
 
 def load_train_val_test(dataframe, image_dir, batch_size, height, width):
     # Load dataset for each part
-    train_dataset = DataReader(dataframe[0], image_dir[0], batch_size=batch_size, height=height,
-                               width=width).load_dataset(training=True)
-    val_dataset = DataReader(dataframe[1], image_dir[1], batch_size=batch_size, height=height,
-                             width=width).load_dataset(training=False)
-    test_dataset = DataReader(dataframe[2], image_dir[2], batch_size=batch_size, height=height,
-                              width=width).load_dataset(training=False)
-
-    return train_dataset, val_dataset, test_dataset
+    # i == 0: train_dataset, i == 1: val_dataset, i == 2: test_dataset
+    for i in range(len(dataframe)):
+        yield (DataLoader(dataframe[i], image_dir[i], batch_size=batch_size, height=height, width=width).load_dataset(
+            training=(i == 0)) if dataframe[i] is not None else None)

@@ -12,7 +12,7 @@ class ChangingConfig(tf.keras.callbacks.Callback):
     def __init__(self, saving_dir):
         super().__init__()
         self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(saving_dir, "setting.cfg"))
+        self.config.read(os.path.join(saving_dir, "setting.yaml"))
         self.saving_dir = saving_dir
 
     def on_epoch_end(self, epoch, logs=None):
@@ -27,7 +27,7 @@ class ChangingConfig(tf.keras.callbacks.Callback):
         self.config.set(section, 'best_weights_cp_path', os.path.join(best_cp_dir, "variables", "variables"))
         # Save latest epoch to config file
         self.config.set(section, 'last_epoch', str(epoch + 1))
-        with open(os.path.join(self.saving_dir, "setting.cfg"), "w") as configfile:
+        with open(os.path.join(self.saving_dir, "setting.yaml"), "w") as configfile:
             self.config.write(configfile)
 
 
@@ -60,16 +60,16 @@ def load_callbacks(config_path, saving_dir, best_loss=None):
     csv_logger = CSVLogger(os.path.join(saving_dir, "log.csv"), append=True)
 
     # Save changing to config file to facility the resuming training
-    if not os.path.exists(os.path.join(saving_dir, "setting.cfg")):
-        shutil.copyfile(config_path, os.path.join(saving_dir, "setting.cfg"))
+    if not os.path.exists(os.path.join(saving_dir, "setting.yaml")):
+        shutil.copyfile(config_path, os.path.join(saving_dir, "setting.yaml"))
         print("Save config to Saving Directory: ", saving_dir)
     else:
         print('Config file is already contain in ' + saving_dir)
         choice = input('Do you want to replace existed config: Y: Yes')
         if choice not in ['Y','y']:
-            raise Exception('Cannot saving setting.cfg file. Config file is already contain in ' + saving_dir)
+            raise Exception('Cannot saving setting.yaml file. Config file is already contain in ' + saving_dir)
         else:
-            shutil.copyfile(config_path, os.path.join(saving_dir, "setting.cfg"))
+            shutil.copyfile(config_path, os.path.join(saving_dir, "setting.yaml"))
             print("Save config to Saving Directory: ", saving_dir)
     save_config = ChangingConfig(saving_dir)
 

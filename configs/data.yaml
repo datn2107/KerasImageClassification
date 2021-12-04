@@ -1,0 +1,18 @@
+splitted_data:
+  available: true
+  metadata_train: null
+  img_train: null
+  metadata_val: null
+  img_val: null
+  metadata_test: null
+  img_test: null
+
+raw_data:
+  available: false
+  metadata_path: null
+  image_dir: null
+  # train_size + val_size + test_size == 1
+  train_size: null # float
+  val_size: null # float
+  test_size: null # float
+
