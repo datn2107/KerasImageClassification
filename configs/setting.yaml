@@ -11,8 +11,8 @@ InputShape:
 BaseModel:
   model_name: ResNet50V2
   backbone_weights: imagenet
-  trainable_backbone: True
-  last_pooling_layer: null
+  trainable_backbone: true
+  last_pooling_layer: avg
 
 FullyConnectedLayer:
   num_dense: 3
