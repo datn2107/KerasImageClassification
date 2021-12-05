@@ -109,8 +109,8 @@ class KerasModel:
         """Create fully connected layers and add to backbone model"""
 
         fc_layers = [backbone]
-        if self.last_pooling_layer is None:
-            fc_layers = [Dropout(rate=0.5)(backbone)]
+        if self.dropout_layer:
+            fc_layers = [Dropout(rate=self.dropout_rate)(backbone)]
 
         # Ensure the unit of first dense layer smaller backbone output
         # because each backbone each last pooling layer will output different number of unit
@@ -131,6 +131,7 @@ class KerasModel:
                 fc_layers.append(Dropout(rate=self.dropout_rate)(fc_layers[-1]))
 
         # Create output layer
+        fc_layers.append(Dense(units=self.num_class, activation=self.activation_dense)(fc_layers[-1]))
         output = Dense(units=self.num_class, activation=self.activation_last_dense)(fc_layers[-1])
         return output
 
