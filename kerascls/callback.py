@@ -1,4 +1,4 @@
-import configparser
+import yaml
 import os
 import shutil
 
@@ -11,8 +11,8 @@ class ChangingConfig(tf.keras.callbacks.Callback):
 
     def __init__(self, saving_dir):
         super().__init__()
-        self.config = configparser.ConfigParser()
-        self.config.read(os.path.join(saving_dir, "setting.yaml"))
+        with open(os.path.join(saving_dir, "setting.yaml"), 'r') as stream:
+            self.config_data = yaml.safe_load(stream)
         self.saving_dir = saving_dir
 
     def on_epoch_end(self, epoch, logs=None):
@@ -22,13 +22,14 @@ class ChangingConfig(tf.keras.callbacks.Callback):
         model_cp_dir = os.path.join(save_model_dir, file_name)
         best_cp_dir = os.path.join(save_model_dir, 'best')
         # Save latest checkpoint path to config file
-        self.config.set(section, 'weights_cp_dir', os.path.join(model_cp_dir, "variables"))
-        self.config.set(section, 'weights_cp_path', os.path.join(model_cp_dir, "variables", "variables"))
-        self.config.set(section, 'best_weights_cp_path', os.path.join(best_cp_dir, "variables", "variables"))
+        self.config_data[section]['weights_cp_dir'] = os.path.join(model_cp_dir, "variables")
+        self.config_data[section]['weights_cp_path'] = os.path.join(model_cp_dir, "variables", "variables")
+        self.config_data[section]['best_weights_cp_path'] = os.path.join(best_cp_dir, "variables", "variables")
         # Save latest epoch to config file
-        self.config.set(section, 'last_epoch', str(epoch + 1))
-        with open(os.path.join(self.saving_dir, "setting.yaml"), "w") as configfile:
-            self.config.write(configfile)
+        self.config_data[section]['last_epoch'] = str(epoch + 1)
+
+        with open(os.path.join(self.saving_dir, "setting.yaml"), "w") as stream:
+            yaml.dump(self.config_data, stream)
 
 
 def load_callbacks(config_path, saving_dir, best_loss=None):

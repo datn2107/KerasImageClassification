@@ -14,12 +14,12 @@ package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--data_config', type=str, help='Data config, which contain metadata and image path',
-                    default=os.path.join(package_dir, "configs", "data.yaml"), required=True)
+                    default=os.path.join(package_dir, "configs", "data.yaml"))
 parser.add_argument('--saving_dir', type=str, help='Directory path to save checkpoint of model and training result',
                     default=os.path.join(package_dir, "saving_dir"))
 parser.add_argument('--config', type=str, help='Config path',
                     default=os.path.join(package_dir, "configs", "setting.yaml"))
-parser.add_argument('--num_class', type=int, help='Number Class', default=10, required=True)
+parser.add_argument('--num_class', type=int, help='Number Class', default=10)
 parser.add_argument('--batch', type=int, help='Batch Size', default=32)
 parser.add_argument('--epoch', type=int, help='Number Epoch', default=10)
 parser_args = parser.parse_args()
