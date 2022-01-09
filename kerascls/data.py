@@ -68,7 +68,7 @@ def load_dataset_from_root(data_root, batch_size, height=256, width=256):
         image_root = os.path.join(data_root, phase)
         dataframe_path = os.path.join(data_root, phase + '_labels.csv')
         if os.path.exists(image_root) and os.path.exists(dataframe_path):
-            dataframe = pd.read_csv(dataframe_path, index_col=0, nrows=20)
+            dataframe = pd.read_csv(dataframe_path, index_col=0)
             datasets[phase] = DataLoader(dataframe, image_root, batch_size=batch_size,
                                          height=height, width=width).load_dataset(training=(phase == 'train'))
         else:
