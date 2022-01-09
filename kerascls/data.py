@@ -1,29 +1,30 @@
 import os
-
+import pandas as pd
+import warnings
 import tensorflow as tf
-from sklearn.model_selection import train_test_split
 
 
 class DataLoader:
-    def __init__(self, dataframe, image_dir, batch_size=8, height=224, width=224):
+    def __init__(self, dataframe: pd.DataFrame, image_root: str,
+                 batch_size: int = 8, height: int = 224, width: int = 224):
         """ Build tf.data.dataset from dataframe
 
         Dataframe need contain n+1 column where:
-            Index column is the column contain image name
-            n other columns are the label of image, value is 0 or 1
-        All image WILL be resize to the same size
-        But it WON'T be normalize, it will be handle by preprocessing layer of model
+            Index column: is the column contain image name
+            n other columns: are the label of image, value is 0 or 1
+        All image WILL be resized to the same size
+        But it WON'T be normalized in this class, it will be handled by preprocessing layer of model
 
         :param dataframe: Metadata of dataset you want to build
-        :param image_dir: Path to directory that contain image
+        :param image_root: Path to directory that contain image
         :param batch_size: Batch size
         :param height: Image size to resize
         :param width: Image size to resize
         """
 
-        self.list_image = list(dataframe.index)
-        self.list_image_path = list(map(lambda image: os.path.join(image_dir, image), self.list_image))
-        self.list_label = list(dataframe.apply(tuple, axis=1).values)
+        self.image_names = list(dataframe.index)
+        self.image_paths = list(map(lambda image_name: os.path.join(image_root, image_name), self.image_names))
+        self.labels = list(dataframe.apply(tuple, axis=1).values)
         self.batch_size = batch_size
         self.height, self.width = height, width
 
@@ -32,7 +33,6 @@ class DataLoader:
         # We need to set expand_animations = False to make sure it return 3D tensor
         # because it can decode GIF image which return 4D tensor
         image = tf.io.decode_image(image, channels=3, expand_animations=False, dtype=tf.float32)
-        # The model requires all image in the dataset to be the same size
         if self.height is not None and self.width is not None:
             image = tf.image.resize(image, (self.height, self.width))
         else:
@@ -41,44 +41,39 @@ class DataLoader:
         return image
 
     def load_dataset(self, training=True):
-        label_dataset = tf.data.Dataset.from_tensor_slices(self.list_label)
-        image_path_tensor = tf.data.Dataset.from_tensor_slices(self.list_image_path)
-        image_dataset = image_path_tensor.map(self._load_image, num_parallel_calls=tf.data.AUTOTUNE)
+        label_dataset = tf.data.Dataset.from_tensor_slices(self.labels)
+        image_path_dataset = tf.data.Dataset.from_tensor_slices(self.image_paths)
+        image_dataset = image_path_dataset.map(self._load_image, num_parallel_calls=tf.data.AUTOTUNE)
 
         dataset = tf.data.Dataset.zip((image_dataset, label_dataset))
         if training:
             dataset = dataset.shuffle(1000)
-        dataset = dataset.batch(self.batch_size, num_parallel_calls=tf.data.AUTOTUNE)
+        try:
+            dataset = dataset.batch(self.batch_size, num_parallel_calls=tf.data.AUTOTUNE)
+        except:
+            dataset = dataset.batch(self.batch_size)
         dataset = dataset.prefetch(tf.data.AUTOTUNE)
         return dataset
 
 
-def split_and_load_dataset(dataframe, image_dir, batch_size, height, width,
-                           train_size=0.7, val_size=0.15, test_size=0.15):
-    """Split and load data for training and testing"""
+def load_dataset_from_root(data_root, batch_size, height=256, width=256):
+    """ Data root must contain:
+            - class_list.txt
+            - train, val, test folder contain images
+            - train_labels.csv, val_labels.csv, test_labels.csv are metadata of train, val, test
+    """
 
-    # Split dataframe into 3 part training, validation and testing
-    train_dataframe, test_dataframe = train_test_split(dataframe, train_size=train_size, shuffle=True,
-                                                       random_state=2107)
-    yield DataLoader(train_dataframe, image_dir, batch_size=batch_size, height=height,
-                     width=width).load_dataset(training=True)
+    datasets = {}
+    for phase in ['train', 'val', 'test']:
+        image_root = os.path.join(data_root, phase)
+        dataframe_path = os.path.join(data_root, phase + '_labels.csv')
+        if os.path.exists(image_root) and os.path.exists(dataframe_path):
+            dataframe = pd.read_csv(dataframe_path, index_col=0, nrows=20)
+            datasets[phase] = DataLoader(dataframe, image_root, batch_size=batch_size,
+                                         height=height, width=width).load_dataset(training=(phase == 'train'))
+        else:
+            datasets[phase] = None
+            warnings.warn("No data for {} !!!".format(phase))
 
-    val_dataframe = None
-    if test_size != 0 and val_size != 0:
-        test_dataframe, val_dataframe = train_test_split(test_dataframe, train_size=test_size / (val_size + train_size))
-    elif val_size != 0:
-        val_dataframe = test_dataframe
+    return datasets
 
-    yield (DataLoader(val_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
-           if val_size != 0 else None)
-
-    yield (DataLoader(test_dataframe, image_dir, batch_size, height, width).load_dataset(training=False)
-           if test_size != 0 else None)
-
-
-def load_train_val_test(dataframe, image_dir, batch_size, height, width):
-    # Load dataset for each part
-    # i == 0: train_dataset, i == 1: val_dataset, i == 2: test_dataset
-    for i in range(len(dataframe)):
-        yield (DataLoader(dataframe[i], image_dir[i], batch_size=batch_size, height=height, width=width).load_dataset(
-            training=(i == 0)) if dataframe[i] is not None else None)

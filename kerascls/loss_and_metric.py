@@ -2,6 +2,7 @@ from typing import List, Dict
 
 import tensorflow as tf
 
+
 def load_optimizer(optimizer: str, **arguments) -> tf.keras.optimizers.Optimizer:
     """ Build the optimizer from desired arguments.
 
