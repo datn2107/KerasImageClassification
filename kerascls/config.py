@@ -4,8 +4,9 @@ from typing import List, Dict, Any
 import yaml
 
 
-class ConfigReader:
-    """Read data from config and return to dict for each section
+class ModelConfigReader:
+    """Read data from config and return to dict for each section.
+        Warning: Config doesn't allow missing key, set it to None if you don't use it
 
             Allowed section:
                 - Checkpoint: Contain path to checkpoint
@@ -21,32 +22,27 @@ class ConfigReader:
         with open(config_path, 'r') as stream:
             self.config_data = yaml.safe_load(stream)
 
-    @classmethod
-    def _fill_missing_key(cls, config_dict: Dict, allow_keys: List[str]) -> Dict:
-        """Assign None to the missing arguments"""
-
-        # Guarantee there are no missing arguments
-        for key in allow_keys:
-            if key not in config_dict:
-                config_dict[key] = None
-        return config_dict
-
     def get_checkpoint_config(self) -> Dict:
         """
         :return: Dict contain:
-                - weights_cp_dir (str): Path of director which contain weights checkpoints for model
+                - weights_cp_root (str): Path of director which contain weights checkpoints for model
                 - weights_cp_path (str): Path of weights checkpoint for model
                 - best_weights_cp_path (str): Path of best weights checkpoint for model
                 - last_epoch (int): The epoch of the last training
         """
-        # Set None value instead of missing arguments
-        # because our function can handle None value
         checkpoint_config = self.config_data['Checkpoints']
-        allow_keys = ['weights_cp_dir', 'weights_cp_path', 'best_weights_cp_path']
-        checkpoint_config = self._fill_missing_key(checkpoint_config, allow_keys)
-        if checkpoint_config.get('last_epoch', None) is None:
-            self.config_data['Checkpoints']['last_epoch'] = 0
         return checkpoint_config
+
+    def _check_model_config(self, full_model_config):
+        if full_model_config.get('model_name', None) is None:
+            raise (ValueError, 'Missing model name in config')
+
+        # guarantee that num_dense not less than 1
+        if full_model_config.get('num_dense', 0) < 1:
+            warnings.warn("Number dense layer is less than 1. It will set to the default num_dense = 1")
+            full_model_config['num_dense'] = 1
+
+        return full_model_config
 
     def get_model_config(self) -> Dict:
         """
@@ -60,43 +56,36 @@ class ConfigReader:
 
                 - num_dense (int): Number of dense layer of fully connected layers
                 - units_first_dense_layer (int): Number units in each dense layer
-                - units_remain_fraction (float): The fraction of remain unit
+                - remained_units_fraction (float): The fraction of remain unit
                 - activation_dense (str): The activation of each dense layer
-                - activation_last_dense (str): The activation of the last dense layer or the output layer
+                - last_dense_activation (str): The activation of the last dense layer or the output layer
                 - dropout_layer (bool): Add dropout after each dense layer or not
                 - dropout_rate (float): Dropout rate of each dropout layer
         """
-        height = self.config_data['InputShape']['height']
-        width = self.config_data['InputShape']['height']
-        input_config = {'input_shape': (height, width, 3)}
+
+        def _check_model_config():
+            if full_model_config.get('model_name', None) is None:
+                raise (ValueError, 'Missing model name in config')
+
+            # guarantee that num_dense not less than 1
+            if full_model_config.get('num_dense', 0) < 1:
+                warnings.warn("Number dense layer is less than 1. It will set to the default num_dense = 1")
+                full_model_config['num_dense'] = 1
+
+        def _eliminate_ono_value_key(config):
+            # Eliminate parameter has None value
+            # because it will eliminate the default value of function parameters
+            processed_config = {key: value for key, value in config.items() if value is not None}
+            return processed_config
+
+        input_config = self.config_data['InputShape']
         model_config = self.config_data['BaseModel']
         fcl_config = self.config_data['FullyConnectedLayer']
 
         full_model_config = {**input_config, **model_config, **fcl_config}
 
-        # Only need to guarantee the model_name and num_dense are not missing or not None
-        # because other arguments is has default value in build model class
-        if full_model_config.get('model_name', None) is None:
-            raise(ValueError, 'Missing model name in config')
-
-        # guarantee that num_dense not less than 1
-        if full_model_config.get('num_dense', None) is not None \
-                and full_model_config.get('num_dense') <= 0:
-            warnings.warn("Number dense layer is less than 1. It will set to the default num_dense = 1")
-            full_model_config['num_dense'] = 1
-
-        # Eliminate parameter has None value (except last_pooling_layer, None is accepted)
-        # because this will pass to function by **dict
-        # and parameters in function is already has default value
-        # so if it has None value it will broke default value of function
-        if full_model_config['input_shape'][0] is None or full_model_config['input_shape'][1] is None:
-            full_model_config.pop('input_shape')
-        keys = ['backbone_weights', 'trainable_backbone', 'num_dense',
-                'unit_first_dense_layer', 'units_remain_fraction',
-                'activation_dense', 'activation_last_dense', 'dropout_layer', 'dropout_rate']
-        for key in keys:
-            if key in full_model_config and full_model_config.get(key) is None:
-                full_model_config.pop(key)
+        _check_model_config()
+        full_model_config = _eliminate_ono_value_key(full_model_config)
 
         return full_model_config
 
@@ -143,8 +132,8 @@ class ConfigReader:
 if __name__ == '__main__':
     import os
     package_dir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-    config_path = os.path.join(package_dir, "configs", "setting.yaml")
-    config_reader = ConfigReader(config_path)
+    config_path = os.path.join(package_dir, "configs", "model.yaml")
+    config_reader = ModelConfigReader(config_path)
 
     print(config_reader.get_checkpoint_config())
     print(config_reader.get_model_config())
