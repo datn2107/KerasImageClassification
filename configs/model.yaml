@@ -1,0 +1,34 @@
+Checkpoints:
+  weights_cp_root: null
+  weights_cp_path: null
+  best_weights_cp_path: null
+  last_epoch: null
+
+InputShape:
+  height: 224
+  width: 224
+
+BaseModel:
+  model_name: MobileNetV2
+  backbone_weights: imagenet
+  trainable_backbone: true
+  last_pooling_layer: avg
+
+FullyConnectedLayer:
+  num_dense: 1
+  units_first_dense_layer: 1024
+  remained_units_fraction: 0.5
+  dense_activation: relu
+  last_dense_activation: softmax
+  dropout_layer: true
+  dropout_rate: 0.3
+
+Optimizer:
+  optimizer: SGD
+  learning_rate: 0.001
+
+Loss:
+  loss: BinaryCrossentropy
+
+Metric:
+  metric: BinaryAccuracy

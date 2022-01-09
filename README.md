@@ -27,36 +27,33 @@ $ git clone https://github.com/datn2107/KerasImageClassification.git .
 
 ## Requirements
 
-* tensorflow >= 2.6
-* pandas >= 1.1
-* numpy >= 1.19
-* matplotlib >= 3.4
-* sklearn
-
 ```shell
 $ pip install ./KerasImageClassification/requirements.txt
 ```
 
-## Install KerasImageClassification
-
-```shell
-$ pip install ./KerasImageClassification
-```
-
 # Data Preparation
+
+Create a directory contain `csv` file and `image` split into each folder.
+
+**Note**: You can ignore test set
 
 ## Image Folder
 
-Create a directory contain all image.
-
 ```
-data_root (folder containing all images)
-|── *.png or *.jpeg
+dataroot 
+|── train.csv
+|── train
+    |── *.png or *.jpeg
+|── val.csv
+|── val
+    |── *.png or *.jpeg
+|── test.csv (optional)
+|── test (optional)
+    |── *.png or *.jpeg
+
 ```
 
 ## Dataframe
-
-Create a dataframe `.csv` contain metadata of all image
 
 ```
     filename    | Class 1 | Class 2 | Class3
@@ -75,59 +72,45 @@ The usage of config file:
 * Config loss
 * Config metrics
 
-The config file is (by default) in `configs/setting.cfg`, which also a config file that `train.py` and `eval.py` (by
-default) will use to load model. For more details you can see
+The config file is (by default) in `configs/model.yaml`, which also a config file that `train.py` (by default) will use
+to load model and other component. For more details you can see
 in [here](https://github.com/datn2107/KerasImageClassification/blob/master/configs/CONFIG.md).
 
 # Tutorial
 
-## Model Summary
+## Display Training Information
+
+This operation use to display config of model, optimizer, loss and metrics to verify your config file.
 
 ```shell
-$ python KerasImageClassification/tools/model_summary.py
+$ python display_training_info_py --model_config <config_path> 
 ```
 
-Display summary of your model, you can use your own model config by using `--config <config_path>`.
-
-## Optimizer, Loss, and Metrics Config
-
-```shell  
-$ python KerasImageClassification/tools/training_arg.py
-```
-
-Display config of optimizer, loss and metrics, you can use your own config by using `--config <config_path>`.
+You can also use `--num_classes` to specify the output of model
 
 ## Training
 
 ```shell
-$ python KerasImageClassification/tools/train.py --batch 64 --epoch 30 --image_dir <data_root> --metadata_path <metadata_path> --config <config_path>
+$ python train.py --data_root <data_directory> --batch_size <batch_size> --epoch <number_epoch>  
 ```
 
-All the checkpoints of training process, result of training is saved (by default)
-in `KerasImageClassification/saving_dir`. You can change the `saving_dir` by using `--siving_dir <new_saving_dir>`
-argument.
 
-**Note that**: You need to ensure that `saving_dir` doesn't contain config file, because the new config file will be
-moved into `saving_dir` and it will contain your model config and checkpoint information to resume training easier.
+All the checkpoints of training process, new config file and result of training is saved (by default)
+in `./saving_root`. You can change the `saving_root` by using `--siving_root <new_saving_root>`
+argument. 
 
-You also can change fraction of training, validation and test by using `--train_size`, `--val_size` and `--test_size`
-by default is `--train_size 0.7 --val_size 0.15 --test_size 0.15` (you need to ensure that sum of all fraction equal 1)
+More particular your `saving_root` will save:
+* `tf2`, `hdf5` model checkpoint in each epoch (optional)
+* `tf2`, `hdf5` best model checkpoint
+* `*.yaml` your model config file, but it contains checkpoint information to resume training easier 
+* `log.csv` file csv contain loss and metrics point
 
-You specify config file by using `--config <config_path>`, if not (by default) it will use the config file
-in `configs/setting.cfg` to load model and checkpoint.
+**Note**: You need to ensure that `saving_root` doesn't contain a config file, or it contains a config file but in a
+different name, because the new config file will be moved into `saving_root`.
 
-## Evaluation
+You specify config file by using `--model_config <model_config_path>`, if not (by default) it will use the config file
+in `./configs/model.cfg` to load model and checkpoint.
 
-```shell
-$ python KerasImageClassification/tools/eval.py --image_dir <data_root> --metadata_path <metadata_path>
-```
+You also can add `--save_best_only` to save the best checkpoint only.
 
-The model will load model by the config file, evaluate it and save the result in saving directory. Similar to training,
-you also can specify the saving directory and config file by using `--saving_dir` and `config` arguments.
-
-All data referred by metadata file will be used to evaluate.
-
-To using this you need to specify config or model you want to use, and in that config file the `best_weights_cp_path` is
-not None or not define. The weight of model will load from this file, so that you also need to ensure that the model in
-config file is similar to the weights in `best_weights_cp_path`.
 
