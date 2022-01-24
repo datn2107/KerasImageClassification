@@ -48,10 +48,7 @@ class DataLoader:
         dataset = tf.data.Dataset.zip((image_dataset, label_dataset))
         if training:
             dataset = dataset.shuffle(1000)
-        try:
-            dataset = dataset.batch(self.batch_size, num_parallel_calls=tf.data.AUTOTUNE)
-        except:
-            dataset = dataset.batch(self.batch_size)
+        dataset = dataset.batch(self.batch_size, num_parallel_calls=tf.data.AUTOTUNE)
         dataset = dataset.prefetch(tf.data.AUTOTUNE)
         return dataset
 
